@@ -1,0 +1,62 @@
+{
+  "opbnbTestnet": {
+    "network": "opBNB Testnet",
+    "chainId": 5611,
+    "main": {
+      "address": "0x0C88413cdc7a52000Fe95C24D614415188930209",
+      "constructorArguments": [
+        "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0",
+        "0x73110e8602930f01bb584Bc683C5Aa2Fb4D42419",
+        "0x9ce42D353B380E9014CB5dC4C3c85C0aBA2872ce",
+        "0xd9a3044CD5a329b16d5e1E02b0E64FBE18E6bf12",
+        73928
+      ],
+      "compiler": {
+        "version": "0.8.20",
+        "optimizer": {
+          "enabled": true,
+          "runs": 200
+        },
+        "viaIR": true
+      }
+    },
+    "royalty": {
+      "address": "0x9ce42D353B380E9014CB5dC4C3c85C0aBA2872ce",
+      "constructorArguments": [
+        "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0",
+        "0xd9a3044CD5a329b16d5e1E02b0E64FBE18E6bf12",
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "compiler": {
+        "version": "0.8.20",
+        "optimizer": {
+          "enabled": true,
+          "runs": 200
+        },
+        "viaIR": true
+      }
+    }
+  },
+  "bscTestnet": {
+    "network": "bscTestnet",
+    "timestamp": "2026-01-09T11:40:40.001Z",
+    "deployer": "0xd9a3044CD5a329b16d5e1E02b0E64FBE18E6bf12",
+    "contracts": {
+      "FiveDollarRide_USDT": "0x83281982BC1b10eE3d79922249E332959F2c8fD3",
+      "Royalty": "0x8b65620fdD19517F991e9796aae29F75eA9D4eb9",
+      "USDT": "0x7F86d4EE5a9dAC4129e01DD91b63F120323bb26e"
+    },
+    "constructorArgs": {
+      "FiveDollarRide": {
+        "feeReceiver": "0xd9a3044CD5a329b16d5e1E02b0E64FBE18E6bf12",
+        "royalty": "0x8b65620fdD19517F991e9796aae29F75eA9D4eb9",
+        "rootUserAddress": "0xd9a3044CD5a329b16d5e1E02b0E64FBE18E6bf12",
+        "rootUserId": 36999,
+        "usdtToken": "0x7F86d4EE5a9dAC4129e01DD91b63F120323bb26e"
+      },
+      "Royalty": {
+        "usdtToken": "0x7F86d4EE5a9dAC4129e01DD91b63F120323bb26e"
+      }
+    }
+  }
+}

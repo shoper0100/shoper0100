@@ -1,0 +1,16 @@
+{
+  "network": "BSC Mainnet",
+  "timestamp": "2026-01-10T05:45:05.012Z",
+  "contracts": {
+    "royalty": "0x7EB5bf12bC02e53C9e1f073269E835D2219b47d1",
+    "main": "0xb450B0EAD1412DA25a83e57f97269eDFE5e7820b"
+  },
+  "roles": {
+    "deployer": "0x92E8Ef7075cd9a8085187391f32D1118C824Bd17",
+    "owner": "0x92E8Ef7075cd9a8085187391f32D1118C824Bd17",
+    "feeReceiver": "0xF2f511BAB6fdAC691Fbf66a608A4Dd7cB813fd27",
+    "rootUser": "0xD2f8819eD8b85dBFe0B42956D23A8a8e0D041F7f",
+    "rootUserId": 36999
+  },
+  "gasPrice": "0.1 Gwei"
+}

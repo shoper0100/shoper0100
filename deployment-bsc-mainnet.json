@@ -1,0 +1,14 @@
+{
+  "network": "BSC Mainnet",
+  "timestamp": "2026-01-10T23:10:37.505Z",
+  "contracts": {
+    "royalty": "0xce7377de450AEea517704fD98d0B2a2F2e5a6b63",
+    "main": "0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44"
+  },
+  "config": {
+    "owner": "0x92E8Ef7075cd9a8085187391f32D1118C824Bd17",
+    "feeReceiver": "0xF2f511BAB6fdAC691Fbf66a608A4Dd7cB813fd27",
+    "rootUser": "0xD2f8819eD8b85dBFe0B42956D23A8a8e0D041F7f",
+    "rootUserId": 36999
+  }
+}

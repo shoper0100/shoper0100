@@ -1,0 +1,29 @@
+{
+    "language": "Solidity",
+    "sources": {
+        "FiveDollarRide_BNB.sol": {
+            "content": "// Use FiveDollarRide_BNB_Flattened_Clean.sol"
+        }
+    },
+    "settings": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        },
+        "viaIR": true,
+        "evmVersion": "paris",
+        "outputSelection": {
+            "*": {
+                "*": [
+                    "abi",
+                    "evm.bytecode",
+                    "evm.deployedBytecode",
+                    "evm.methodIdentifiers"
+                ],
+                "": [
+                    "ast"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,355 @@
+// SPDX-License-Identifier: Unlicensed
+pragma solidity ^0.8.20;
+
+/**
+ * @title Royalty
+ * @notice Manages all royalty distribution for the RideBNB platform
+ * @dev Simplified version with owner-only control
+ */
+contract Royalty {
+    
+    // ==================== STATE VARIABLES ====================
+    
+    // Reentrancy guard
+    bool private locked;
+    
+    address public rideBNBContract;  // Reference to main RideBNB contract
+    address public owner;
+    uint public startTime;
+    uint private defaultRefer;
+    
+    // Royalty configuration
+    uint[4] public royaltyPercent = [40, 30, 20, 10];  // Distribution percentages
+    uint[4] public royaltyLvl = [10, 11, 12, 13];      // Tier levels
+    uint[4] public royaltyDirectRequired = [10, 11, 12, 13]; // Direct referrals required
+    uint public constant royaltyMaxPercent = 150;       // 150% income cap
+    uint public constant royaltyDistTime = 24 hours;    // Distribution interval
+    
+    // Royalty tracking
+    struct RoyaltyData {
+        uint userCount;
+        uint index;
+        uint distributionRound;
+        uint dividendPerShare; // Accumulated dividend per share (scaled by 1e18)
+    }
+    
+    mapping(uint => RoyaltyData) public royaltyData;  // Tier index -> RoyaltyData
+    mapping(uint => mapping(uint => uint[])) private pendingRoyaltyUsers; // Pending list
+    mapping(uint => mapping(uint => uint)) public royaltyAmounts;   // User royalty amounts (deprecated)
+    mapping(uint => mapping(uint => bool)) public royaltyTaken;     // Claim status (deprecated for recurring model)
+    mapping(uint => mapping(uint => bool)) public royaltyActive;    // Active status
+    mapping(uint => mapping(uint => uint)) private lastRoyaltyTime; // Claim timestamps
+    mapping(uint => mapping(uint => uint)) private lastClaimedDividend; // Track last claimed dividend per share
+    
+    // ==================== EVENTS ====================
+    
+    event RoyaltyDistributed(uint indexed tier, uint amount, uint userCount, uint timestamp);
+    event RoyaltyClaimed(uint indexed userId, uint indexed tier, uint amount, uint timestamp);
+    event UserRegistered(uint indexed userId, uint indexed tier, uint timestamp);
+    event RoyaltyConfigUpdated(string configType, uint timestamp);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event RideBNBContractSet(address indexed rideBNBContract, uint timestamp);
+    
+    // ==================== MODIFIERS ====================
+    
+    modifier nonReentrant() {
+        require(!locked, "No reentrancy");
+        locked = true;
+        _;
+        locked = false;
+    }
+    
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
+        _;
+    }
+    
+    modifier onlyRideBNB() {
+        require(msg.sender == rideBNBContract, "Only RideBNB contract");
+        _;
+    }
+    
+    // ==================== CONSTRUCTOR ====================
+    
+    constructor(address _owner, uint _defaultRefer) {
+        owner = _owner;
+        defaultRefer = _defaultRefer;
+        startTime = block.timestamp;
+    }
+    
+    // ==================== ADMIN FUNCTIONS ====================
+    
+    /**
+     * @dev Set RideBNB contract address (one-time setup)
+     */
+    function setRideBNBContract(address _rideBNBContract) external onlyOwner {
+        require(rideBNBContract == address(0), "Already set");
+        require(_rideBNBContract != address(0), "Invalid address");
+        rideBNBContract = _rideBNBContract;
+        emit RideBNBContractSet(_rideBNBContract, block.timestamp);
+    }
+    
+    /**
+     * @dev Set royalty distribution percentages
+     */
+    function setRoyaltyPercents(uint[4] memory _percents) external onlyOwner {
+        uint total;
+        for(uint i=0; i<4; i++) {
+            total += _percents[i];
+        }
+        require(total == 100, "Must equal 100%");
+        royaltyPercent = _percents;
+        emit RoyaltyConfigUpdated("percentages", block.timestamp);
+    }
+    
+    /**
+     * @dev Set royalty tier levels
+     */
+    function setRoyaltyLevels(uint[4] memory _levels) external onlyOwner {
+        for(uint i=0; i<4; i++) {
+            require(_levels[i] >= 1 && _levels[i] <= 13, "Invalid level");
+        }
+        royaltyLvl = _levels;
+        emit RoyaltyConfigUpdated("levels", block.timestamp);
+    }
+    
+    /**
+     * @dev Update royalty direct referral requirements
+     */
+    function setRoyaltyDirectRequired(uint[4] memory _required) external onlyOwner {
+        for(uint i=0; i<4; i++) {
+            require(_required[i] > 0 && _required[i] <= 100, "Invalid requirement");
+            // Ensure ascending order - higher tiers need more or equal direct referrals
+            if(i > 0) require(_required[i] >= _required[i-1], "Must be ascending");
+        }
+        royaltyDirectRequired = _required;
+        emit RoyaltyConfigUpdated("directRequired", block.timestamp);
+    }
+    
+    /**
+     * @dev Transfer ownership
+     */
+    function transferOwnership(address _newOwner) external onlyOwner {
+        require(_newOwner != address(0), "Invalid address");
+        owner = _newOwner;
+        emit OwnershipTransferred(owner, _newOwner);
+    }
+    
+    // ==================== CORE ROYALTY FUNCTIONS ====================
+    
+    /**
+     * @dev Register user for royalty tier (called by RideBNB on upgrade)
+     * Root user (defaultRefer) is exempt from direct referral requirements
+     */
+    function registerUser(uint _userId, uint _level, uint _directCount) external {
+        // Allow calls from RideBNB contract OR during initial setup (before RideBNB is connected)
+        require(msg.sender == rideBNBContract || rideBNBContract == address(0), "Only RideBNB contract");
+        
+        for(uint i=0; i<4; i++) {
+            // Root user is always qualified regardless of direct count
+            bool isRootUser = (_userId == defaultRefer);
+            bool meetsRequirement = isRootUser || (_directCount >= royaltyDirectRequired[i]);
+            
+            if(royaltyLvl[i] == _level && meetsRequirement) {
+                pendingRoyaltyUsers[i][0].push(_userId);
+                emit UserRegistered(_userId, i, block.timestamp);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * @dev Distribute royalty pool to eligible users (NEW MODEL: Dividend-Per-Share)
+     * This increases accumulated dividends for ALL active users, not just new ones
+     */
+    function distRoyalty(uint _tier) external {
+        require(_tier < 4, "Invalid tier");
+        require((block.timestamp - startTime) / royaltyDistTime > royaltyData[_tier].distributionRound, "Not yet");
+        
+        // Get pool balance from this contract
+        uint _balance = address(this).balance;
+        uint _amt = (_balance * royaltyPercent[_tier]) / 100;
+        
+        require(_amt > 0, "No funds to distribute");
+        
+        // Process pending users first (add them to active pool)
+        uint currentIndex = royaltyData[_tier].index;
+        uint newUsers = 0;
+        
+        if(_tier == 0) {
+            for(uint i = currentIndex; i < pendingRoyaltyUsers[0][0].length; i++) {
+                uint _user = pendingRoyaltyUsers[0][0][i];
+                royaltyActive[_user][0] = true;
+                royaltyData[0].userCount++;
+                royaltyData[0].index++;
+                newUsers++;
+            }
+        }
+        
+        uint totalActiveUsers = royaltyData[_tier].userCount;
+        require(totalActiveUsers > 0, "No active users");
+        
+        // Calculate dividend per share (scaled by 1e18 for precision)
+        uint dividendIncrease = (_amt * 1e18) / totalActiveUsers;
+        royaltyData[_tier].dividendPerShare += dividendIncrease;
+        
+        royaltyData[_tier].distributionRound++;
+        emit RoyaltyDistributed(_tier, _amt, totalActiveUsers, block.timestamp);
+    }
+    
+    /**
+     * @dev User claims their ACCUMULATED royalty (NEW MODEL: Pull Pattern)
+     */
+    function claimRoyalty(
+        uint _id, 
+        uint _tier,
+        uint rootUserId,
+        uint userTotalIncome,
+        uint userTotalDeposit,
+        address userAccount
+    ) external nonReentrant returns (uint) {
+        require(msg.sender == userAccount || msg.sender == rideBNBContract, "Unauthorized");
+        require(_tier < 4, "Invalid tier");
+        require(royaltyActive[_id][_tier], "Inactive");
+        
+        // Prevent claiming same tier multiple times per day
+        uint currentDay = getCurRoyaltyDay();
+        require(lastRoyaltyTime[_id][_tier] < currentDay, "Already claimed today");
+        
+        // Root user special privilege: no income cap
+        bool isRoot = _id == rootUserId;
+        
+        if(!isRoot) {
+            require(userTotalIncome < (userTotalDeposit * royaltyMaxPercent / 100), "Max cap reached");
+        }
+        
+        // Calculate accumulated dividends
+        uint totalDividendPerShare = royaltyData[_tier].dividendPerShare;
+        uint userLastClaimed = lastClaimedDividend[_id][_tier];
+        uint unclaimedDividend = totalDividendPerShare - userLastClaimed;
+        
+        // Each user gets 1 share, so amount = unclaimedDividend / 1e18
+        uint _amt = unclaimedDividend / 1e18;
+        
+        require(_amt > 0, "No royalty available");
+        
+        // Update last claimed position
+        lastClaimedDividend[_id][_tier] = totalDividendPerShare;
+        lastRoyaltyTime[_id][_tier] = currentDay;
+        
+        // RECURRING ROYALTY MODEL: Users stay active until 150% income cap
+        // Both root and normal users can claim multiple times from their tier
+        // Only the 150% cap check (line 220) limits normal users
+        // if(!isRoot) {
+        //     royaltyActive[_id][_tier] = false; // DISABLED - allows recurring claims
+        // }
+        
+        
+        // Transfer royalty to user
+        (bool success, ) = payable(userAccount).call{value: _amt}("");
+        require(success, "Transfer failed");
+        
+        emit RoyaltyClaimed(_id, _tier, _amt, block.timestamp);
+        return _amt;
+    }
+    
+    // ==================== VIEW FUNCTIONS ====================
+    
+    /**
+     * @dev Get current royalty day
+     */
+    function getCurRoyaltyDay() public view returns(uint) {
+        return (block.timestamp - startTime) / royaltyDistTime;
+    }
+    
+    /**
+     * @dev Get next royalty distribution time
+     */
+    function getNextDistTime() external view returns(uint) {
+        return startTime + (royaltyDistTime * (getCurRoyaltyDay() + 1));
+    }
+    
+    /**
+     * @dev Get royalty percentages
+     */
+    function getRoyaltyPercents() external view returns(uint[4] memory) {
+        return royaltyPercent;
+    }
+    
+    /**
+     * @dev Get royalty levels
+     */
+    function getRoyaltyLevels() external view returns(uint[4] memory) {
+        return royaltyLvl;
+    }
+    
+    /**
+     * @dev Get user's royalty data for specific tier
+     */
+    function getUserRoyaltyData(uint _userId, uint _tier) external view returns(
+        uint amount,
+        bool taken,
+        bool active
+    ) {
+        return (
+            royaltyAmounts[_userId][_tier],
+            royaltyTaken[_userId][_tier],
+            royaltyActive[_userId][_tier]
+        );
+    }
+    
+    /**
+     * @dev Get tier statistics
+     */
+    function getTierStats(uint _tier) external view returns(
+        uint userCount,
+        uint distributionRound,
+        uint pendingUserCount
+    ) {
+        require(_tier < 4, "Invalid tier");
+        return (
+            royaltyData[_tier].userCount,
+            royaltyData[_tier].distributionRound,
+            pendingRoyaltyUsers[_tier][0].length
+        );
+    }
+    
+    /**
+     * @dev Check if user is eligible for specific tier
+     */
+    function isEligibleForRoyalty(uint _userId, uint _tier) external view returns(bool) {
+        require(_tier < 4, "Invalid tier");
+        return royaltyActive[_userId][_tier] && !royaltyTaken[_userId][_tier];
+    }
+    
+    /**
+     * @dev Get contract balance
+     */
+    function getBalance() external view returns(uint) {
+        return address(this).balance;
+    }
+    
+    /**
+     * @dev Get contract configuration for frontend
+     */
+    function getContractConfig() external view returns(
+        uint _royaltyMaxPercent,
+        uint _royaltyDistTime,
+        uint _startTime,
+        uint _currentDay
+    ) {
+        return (
+            royaltyMaxPercent,
+            royaltyDistTime,
+            startTime,
+            getCurRoyaltyDay()
+        );
+    }
+    
+    // ==================== RECEIVE FUNCTION ====================
+    
+    /**
+     * @dev Receive royalty pool funds
+     */
+    receive() external payable {}
+}
