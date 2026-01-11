@@ -28,7 +28,7 @@ OWNER_ADDRESS=0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0
 DEFAULT_REFER_ID=36999
 
 # Network RPC
-OPBNB_RPC_URL=https://opbnb-mainnet-rpc.bnbchain.org
+BSC_RPC_URL=https://bsc-dataseed1.binance.org
 ```
 
 ### Step 2: Deploy Royalty Receiver First
@@ -38,7 +38,7 @@ OPBNB_RPC_URL=https://opbnb-mainnet-rpc.bnbchain.org
 npx hardhat compile
 
 # Deploy royalty receiver (this forwards all funds to admin fee address)
-npx hardhat run scripts/deployRoyalty.js --network opbnb
+npx hardhat run scripts/deployRoyalty.js --network bsc
 ```
 
 **Save the output!** You'll get a royalty contract address like:
@@ -57,7 +57,7 @@ ROYALTY_ADDRESS=0xYourRoyaltyContractAddress
 
 ```bash
 # Deploy main contract
-npx hardhat run scripts/deploy.js --network opbnb
+npx hardhat run scripts/deploy.js --network bsc
 ```
 
 ## Fund Flow
@@ -83,10 +83,10 @@ After deployment, verify both contracts:
 
 ```bash
 # Verify royalty receiver
-npx hardhat verify --network opbnb <ROYALTY_ADDRESS> "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0"
+npx hardhat verify --network bsc <ROYALTY_ADDRESS> "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0"
 
 # Verify main contract
-npx hardhat verify --network opbnb <CONTRACT_ADDRESS> "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0" "<ROYALTY_ADDRESS>" "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0" "36999"
+npx hardhat verify --network bsc <CONTRACT_ADDRESS> "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0" "<ROYALTY_ADDRESS>" "0x018B5411F0FDBC989bCa41115F6124c2FBaa0DB0" "36999"
 ```
 
 ## Update Frontend
@@ -124,7 +124,7 @@ artifacts/contracts/RideBNB.sol/RideBNB.json
 - Install Node.js v20 LTS: https://nodejs.org/
 
 **Insufficient funds:**
-- Ensure deployer wallet has BNB on opBNB
+- Ensure deployer wallet has BNB on BSC Mainnet
 - Each deployment costs ~0.01-0.02 BNB
 
 **Private key issues:**

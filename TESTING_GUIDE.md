@@ -26,14 +26,14 @@ npx hardhat test
 
 If you can't change Node version, test manually after deployment to testnet:
 
-#### 1. Deploy to opBNB Testnet
+#### 1. Deploy to BSC Testnet
 ```bash
 # Add to .env
 PRIVATE_KEY=your_private_key
-OPBNB_TESTNET_RPC=https://opbnb-testnet-rpc.bnbchain.org
+BSC_TESTNET_RPC=https://data-seed-prebsc-1-s1.binance.org:8545
 
 # Deploy
-npx hardhat run scripts/deploy.js --network opbnbTest
+npx hardhat run scripts/deploy.js --network bscTestnet
 ```
 
 #### 2. Manual Test Checklist
