@@ -279,11 +279,11 @@ export default function Dashboard() {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const getAffiliateLink = () => `https://fivedollarride.com?ref=${userAddress}`;
-    const getAffiliateLinkById = () => `https://fivedollarride.com?refid=${userId}`;
+    const getAffiliateLink = () => `${typeof window !== 'undefined' ? window.location.origin : 'https://fivedollar.bnb'}?ref=${userAddress}`;
+    const getAffiliateLinkById = () => `${typeof window !== 'undefined' ? window.location.origin : 'https://fivedollar.bnb'}?refid=${userId}`;
 
     const shareOnSocial = (platform: string) => {
-        const text = `🚀 Join me on FiveDollarRide! Earn passive income with 4 streams. Start with $5!`;
+        const text = `🚀 Join me on FiveDollarBNB! Earn passive income with 4 streams. Start with $5!`;
         const url = getAffiliateLinkById();
         const urls = {
             twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,

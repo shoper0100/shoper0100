@@ -199,7 +199,7 @@ export default function Home() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-6xl md:text-8xl font-extrabold text-yellow-300 mb-6 drop-shadow-2xl" style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.7)' }}>
-          💎 FiveDollarRide
+          💎 FiveDollarBNB
         </h1>
         <p className="text-3xl md:text-4xl text-white font-bold mb-4 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
           Your Gateway to Blockchain Passive Income
@@ -266,7 +266,7 @@ export default function Home() {
         <h2 className="text-4xl md:text-5xl font-extrabold text-yellow-300 text-center mb-4 drop-shadow-lg" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.6)' }}>
           🌟 Platform Features & Benefits
         </h2>
-        <p className="text-xl text-center text-blue-200 mb-12">Why FiveDollarRide is the smartest choice for passive income</p>
+        <p className="text-xl text-center text-blue-200 mb-12">Why FiveDollarBNB is the smartest choice for passive income</p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <FeatureCard
@@ -340,9 +340,9 @@ export default function Home() {
           <EarningCard
             icon="👑"
             title="Royalty Pool"
-            percentage="100% Split"
+            percentage="5%"
             description="Share elite royalty pool at levels 10-13"
-            details="Equal distribution among tier members"
+            details="5% of all upgrades distributed among qualified members"
             color="from-yellow-500 to-orange-600"
             isPassive={false}
           />
