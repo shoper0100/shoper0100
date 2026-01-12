@@ -803,16 +803,6 @@ export default function Dashboard() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                        {/* Team Members List */}
-                                <div>
-                                    <h3 className="text-white font-bold mb-3 text-sm">Direct Team Members</h3>
-                                    {loadingTeam ? (
-                                        <div className="text-center py-4">
-                                            <div className="animate-spin text-2xl mb-2">⏳</div>
-                                            <p className="text-white/70 text-sm">Loading team...</p>
-                                        </div>
                                     ) : teamData.length > 0 ? (
                                         <div className="space-y-2 max-h-96 overflow-y-auto">
                                             {teamData.map((member, idx) => (
@@ -852,13 +842,13 @@ export default function Dashboard() {
                                                 </div>
                                             ))}
                                         </div>
-                                    ) : (
+                                        ) : (
                                         <div className="text-center py-8 bg-white/5 rounded-lg">
                                             <p className="text-gray-400 text-sm">No direct team members yet</p>
                                             <p className="text-gray-500 text-xs mt-1">Share your referral link to build your team</p>
                                         </div>
                                     )}
-                                </div>
+                                    </div>
                             </div>
                                 )}
                     </>
