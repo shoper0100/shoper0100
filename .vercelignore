@@ -1,17 +1,8 @@
-# Ignore everything except webapp
-*
-!webapp/**
-
-# But ignore these in webapp too
-webapp/node_modules/
-webapp/.next/
-webapp/out/
-webapp/.env.local
-webapp/.env*.local
-
-# Ignore documentation and contracts
-presentations/
-contracts/
-scripts/
-*.md
-!webapp/**/*.md
+# Vercel ignore file - only ignore build artifacts and environment files
+node_modules
+.next
+out
+.env.local
+.env*.local
+.DS_Store
+*.log
