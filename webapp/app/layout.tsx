@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FiveDollarRide - Blockchain Income Platform",
+  title: "FiveDollarBNB - Blockchain Income Platform",
   description: "Earn passive income with 4 automated streams on BSC",
 };
 

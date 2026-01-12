@@ -335,7 +335,7 @@ export default function Dashboard() {
 
             await tx.wait();
 
-            alert('✅ Registration successful! Welcome to FiveDollarRide!');
+            alert('✅ Registration successful! Welcome to FiveDollarBNB!');
             loadUserData(userAddress);
         } catch (error: any) {
             console.error('Registration failed:', error);
@@ -892,7 +892,7 @@ export default function Dashboard() {
                         ) : (
                             <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-8 text-center border-2 border-yellow-400/50 shadow-2xl">
                                 <div className="text-6xl mb-4">🚀</div>
-                                <p className="text-white text-2xl font-bold mb-2">Welcome to FiveDollarRide!</p>
+                                <p className="text-white text-2xl font-bold mb-2">Welcome to FiveDollarBNB!</p>
                                 <p className="text-white/90 text-lg mb-6">Start your journey to passive income</p>
                                 <button
                                     onClick={() => handleRegister()}
