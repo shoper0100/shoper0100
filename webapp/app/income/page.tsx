@@ -789,149 +789,148 @@ export default function Dashboard() {
                                             <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
                                             <span className="text-white">Vacant (○) - No Members Yet</span>
                                         </div>
-                                    </div>
 
-                                            {/* Total Count */}
-                                <div className="mt-3 bg-white/5 rounded-lg p-3">
-                                    <div className="grid grid-cols-2 gap-4 text-xs">
-                                        <div>
-                                            <p className="text-gray-400 mb-1">Total Matrix Capacity</p>
-                                            <p className="text-white font-bold">{(Math.pow(2, 13) - 1).toLocaleString()} positions</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-gray-400 mb-1">Your Team Size</p>
-                                            <p className="text-green-400 font-bold">{userInfo.team || 0} members</p>
+                                        {/* Total Count */}
+                                        <div className="mt-3 bg-white/5 rounded-lg p-3">
+                                            <div className="grid grid-cols-2 gap-4 text-xs">
+                                                <div>
+                                                    <p className="text-gray-400 mb-1">Total Matrix Capacity</p>
+                                                    <p className="text-white font-bold">{(Math.pow(2, 13) - 1).toLocaleString()} positions</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-gray-400 mb-1">Your Team Size</p>
+                                                    <p className="text-green-400 font-bold">{userInfo.team || 0} members</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
                         {/* Team Members List */}
-                        <div>
-                            <h3 className="text-white font-bold mb-3 text-sm">Direct Team Members</h3>
-                            {loadingTeam ? (
-                                <div className="text-center py-4">
-                                    <div className="animate-spin text-2xl mb-2">⏳</div>
-                                    <p className="text-white/70 text-sm">Loading team...</p>
-                                </div>
-                            ) : teamData.length > 0 ? (
-                                <div className="space-y-2 max-h-96 overflow-y-auto">
-                                    {teamData.map((member, idx) => (
-                                        <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors">
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                                                <div>
-                                                    <p className="text-gray-400">ID</p>
-                                                    <p className="text-white font-bold">#{member.id}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-gray-400">Level</p>
-                                                    <p className="text-green-400 font-bold">L{member.level}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-gray-400">Joined</p>
-                                                    <p className="text-white font-bold">{member.joinDate}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-gray-400">Team Size</p>
-                                                    <p className="text-blue-400 font-bold">{member.totalTeam}</p>
-                                                </div>
-                                            </div>
-                                            <div className="mt-2">
-                                                <p className="text-gray-400 text-xs">Wallet</p>
-                                                <p className="text-white/70 text-xs font-mono">
-                                                    {member.address.slice(0, 10)}...{member.address.slice(-8)}
-                                                </p>
-                                            </div>
-
-                                            {/* Level Fill Status */}
-                                            <div className="mt-2 flex gap-1">
-                                                {Array.from({ length: 13 }, (_, i) => i + 1).map(lvl => (
-                                                    <div key={lvl} className={`flex-1 h-1.5 rounded ${member.level >= lvl ? 'bg-green-500' : 'bg-gray-700'
-                                                        }`} />
-                                                ))}
-                                            </div>
+                                <div>
+                                    <h3 className="text-white font-bold mb-3 text-sm">Direct Team Members</h3>
+                                    {loadingTeam ? (
+                                        <div className="text-center py-4">
+                                            <div className="animate-spin text-2xl mb-2">⏳</div>
+                                            <p className="text-white/70 text-sm">Loading team...</p>
                                         </div>
-                                    ))}
+                                    ) : teamData.length > 0 ? (
+                                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                                            {teamData.map((member, idx) => (
+                                                <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors">
+                                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                                        <div>
+                                                            <p className="text-gray-400">ID</p>
+                                                            <p className="text-white font-bold">#{member.id}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-gray-400">Level</p>
+                                                            <p className="text-green-400 font-bold">L{member.level}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-gray-400">Joined</p>
+                                                            <p className="text-white font-bold">{member.joinDate}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-gray-400">Team Size</p>
+                                                            <p className="text-blue-400 font-bold">{member.totalTeam}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-2">
+                                                        <p className="text-gray-400 text-xs">Wallet</p>
+                                                        <p className="text-white/70 text-xs font-mono">
+                                                            {member.address.slice(0, 10)}...{member.address.slice(-8)}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Level Fill Status */}
+                                                    <div className="mt-2 flex gap-1">
+                                                        {Array.from({ length: 13 }, (_, i) => i + 1).map(lvl => (
+                                                            <div key={lvl} className={`flex-1 h-1.5 rounded ${member.level >= lvl ? 'bg-green-500' : 'bg-gray-700'
+                                                                }`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 bg-white/5 rounded-lg">
+                                            <p className="text-gray-400 text-sm">No direct team members yet</p>
+                                            <p className="text-gray-500 text-xs mt-1">Share your referral link to build your team</p>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div className="text-center py-8 bg-white/5 rounded-lg">
-                                    <p className="text-gray-400 text-sm">No direct team members yet</p>
-                                    <p className="text-gray-500 text-xs mt-1">Share your referral link to build your team</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                            </div>
                                 )}
+                    </>
+                ) : (
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-8 text-center border-2 border-yellow-400/50 shadow-2xl">
+                        <div className="text-6xl mb-4">🚀</div>
+                        <p className="text-white text-2xl font-bold mb-2">Welcome to FiveDollarBNB!</p>
+                        <p className="text-white/90 text-lg mb-6">Start your journey to passive income</p>
+                        <button
+                            onClick={() => handleRegister()}
+                            disabled={upgrading}
+                            className="bg-yellow-400 hover:bg-yellow-300 text-purple-900 px-12 py-4 rounded-xl text-xl font-extrabold shadow-2xl hover:scale-105 transition-all disabled:opacity-50"
+                            style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.3)' }}
+                        >
+                            {upgrading ? '⏳ Registering...' : '✨ Register Now ($5)'}
+                        </button>
+                        <p className="text-white/70 text-sm mt-4">Get instant access to 4 income streams!</p>
+                    </div>
+                )}
             </>
             ) : (
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-8 text-center border-2 border-yellow-400/50 shadow-2xl">
-                <div className="text-6xl mb-4">🚀</div>
-                <p className="text-white text-2xl font-bold mb-2">Welcome to FiveDollarBNB!</p>
-                <p className="text-white/90 text-lg mb-6">Start your journey to passive income</p>
-                <button
-                    onClick={() => handleRegister()}
-                    disabled={upgrading}
-                    className="bg-yellow-400 hover:bg-yellow-300 text-purple-900 px-12 py-4 rounded-xl text-xl font-extrabold shadow-2xl hover:scale-105 transition-all disabled:opacity-50"
-                    style={{ textShadow: '1px 1px 2px rgba(255,255,255,0.3)' }}
-                >
-                    {upgrading ? '⏳ Registering...' : '✨ Register Now ($5)'}
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-12 text-center border border-white/20">
+                <div className="text-6xl mb-4">🔐</div>
+                <p className="text-white text-2xl mb-4">Connect Wallet</p>
+                <button onClick={connectWallet} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-xl text-xl font-bold hover:scale-105 transition-transform">
+                    Connect MetaMask
                 </button>
-                <p className="text-white/70 text-sm mt-4">Get instant access to 4 income streams!</p>
             </div>
-                        )}
-        </>
-    ) : (
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-12 text-center border border-white/20">
-            <div className="text-6xl mb-4">🔐</div>
-            <p className="text-white text-2xl mb-4">Connect Wallet</p>
-            <button onClick={connectWallet} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-10 py-4 rounded-xl text-xl font-bold hover:scale-105 transition-transform">
-                Connect MetaMask
-            </button>
-        </div>
-    )
+            )
 }
 
-{/* Contract Links Footer */ }
-{
-    userAddress && (
-        <div className="mt-4 bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/20">
-            <p className="text-yellow-200 text-xs font-bold mb-2 text-center drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>📄 Smart Contracts</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div className="bg-white/10 rounded p-2">
-                    <p className="text-yellow-200 font-bold mb-1">Main Contract:</p>
-                    <a
-                        href={`https://bscscan.com/address/${CONTRACTS.MAIN}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-300 hover:text-blue-200 underline break-all"
-                    >
-                        {CONTRACTS.MAIN}
-                    </a>
-                </div>
-                <div className="bg-white/10 rounded p-2">
-                    <p className="text-yellow-200 font-bold mb-1">Royalty Contract:</p>
-                    <a
-                        href={`https://bscscan.com/address/${CONTRACTS.ROYALTY}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-300 hover:text-blue-200 underline break-all"
-                    >
-                        {CONTRACTS.ROYALTY}
-                    </a>
-                </div>
-            </div>
-        </div>
-    )
-}
+            {/* Contract Links Footer */}
+            {
+                userAddress && (
+                    <div className="mt-4 bg-black/20 backdrop-blur-sm rounded-lg p-4 border border-yellow-400/20">
+                        <p className="text-yellow-200 text-xs font-bold mb-2 text-center drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>📄 Smart Contracts</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                            <div className="bg-white/10 rounded p-2">
+                                <p className="text-yellow-200 font-bold mb-1">Main Contract:</p>
+                                <a
+                                    href={`https://bscscan.com/address/${CONTRACTS.MAIN}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-300 hover:text-blue-200 underline break-all"
+                                >
+                                    {CONTRACTS.MAIN}
+                                </a>
+                            </div>
+                            <div className="bg-white/10 rounded p-2">
+                                <p className="text-yellow-200 font-bold mb-1">Royalty Contract:</p>
+                                <a
+                                    href={`https://bscscan.com/address/${CONTRACTS.ROYALTY}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-300 hover:text-blue-200 underline break-all"
+                                >
+                                    {CONTRACTS.ROYALTY}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
-{
-    copied && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-2xl animate-bounce text-sm">
-            ✅ Copied!
-        </div>
-    )
-}
-            </div >
+            {
+                copied && (
+                    <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-2xl animate-bounce text-sm">
+                        ✅ Copied!
+                    </div>
+                )
+            }
+        </div >
         </div >
     );
 }
