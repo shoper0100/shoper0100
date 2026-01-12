@@ -9,6 +9,7 @@ export default function Home() {
   const [userId, setUserId] = useState(0);
   const [registering, setRegistering] = useState(false);
   const [referralId, setReferralId] = useState(CONTRACTS.ROOT_USER_ID);
+  const [levelCosts, setLevelCosts] = useState<string[]>([]);
 
   useEffect(() => {
     // Get referral ID from URL
@@ -17,6 +18,28 @@ export default function Home() {
     if (refId) {
       setReferralId(Number(refId));
     }
+
+    // Fetch level costs from contract
+    const fetchLevelCosts = async () => {
+      try {
+        const provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[0]);
+        const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+        const costs: string[] = [];
+        for (let i = 0; i < 13; i++) {
+          const cost = await contract.getLevelCost(i);
+          costs.push('$' + Number(ethers.formatEther(cost)).toLocaleString());
+        }
+        setLevelCosts(costs);
+      } catch (error) {
+        console.error('Failed to fetch level costs:', error);
+        // Fallback to correct hardcoded values
+        setLevelCosts([
+          '$5', '$5', '$10', '$20', '$40', '$80', '$160',
+          '$320', '$640', '$1,280', '$2,560', '$5,120', '$10,240'
+        ]);
+      }
+    };
+    fetchLevelCosts();
   }, []);
 
   const connectWallet = async () => {
@@ -290,8 +313,8 @@ export default function Home() {
           <EarningCard
             icon="👥"
             title="Direct Referrals"
-            percentage="90%"
-            description="Earn 90% instantly when someone joins using your referral link"
+            percentage="95%"
+            description="Earn 95% instantly when someone joins using your referral link"
             details="One-time payment directly to your wallet"
             color="from-purple-500 to-pink-600"
             isPassive={false}
@@ -375,24 +398,13 @@ export default function Home() {
         <p className="text-xl text-center text-blue-200 mb-12">Upgrade to higher levels and multiply your earnings</p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-          {[
-            { level: 1, cost: '$5' },
-            { level: 2, cost: '$10' },
-            { level: 3, cost: '$20' },
-            { level: 4, cost: '$40' },
-            { level: 5, cost: '$80' },
-            { level: 6, cost: '$160' },
-            { level: 7, cost: '$320' },
-            { level: 8, cost: '$640' },
-            { level: 9, cost: '$1,280' },
-            { level: 10, cost: '$2,560' },
-            { level: 11, cost: '$5,120' },
-            { level: 12, cost: '$10,240' },
-            { level: 13, cost: '$20,480' }
-          ].map((item) => (
-            <div key={item.level} className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-center border-2 border-yellow-400/40 hover:scale-105 transition-transform">
-              <p className="text-yellow-300 font-extrabold text-lg mb-1" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>L{item.level}</p>
-              <p className="text-white font-bold text-sm">{item.cost}</p>
+          {(levelCosts.length > 0 ? levelCosts : [
+            '$5', '$5', '$10', '$20', '$40', '$80', '$160',
+            '$320', '$640', '$1,280', '$2,560', '$5,120', '$10,240'
+          ]).map((cost, index) => (
+            <div key={index} className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-center border-2 border-yellow-400/40 hover:scale-105 transition-transform">
+              <p className="text-yellow-300 font-extrabold text-lg mb-1" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>L{index + 1}</p>
+              <p className="text-white font-bold text-sm">{cost}</p>
             </div>
           ))}
         </div>
