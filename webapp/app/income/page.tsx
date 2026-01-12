@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACTS, MAIN_ABI, ROYALTY_ABI, BSC_RPC } from '@/lib/contracts';
+import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
