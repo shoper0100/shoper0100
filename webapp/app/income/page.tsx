@@ -307,6 +307,14 @@ export default function Dashboard() {
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, signer);
 
+            // CHECK: Is user already registered?
+            const existingUserId = await contract.id(userAddress);
+            if (Number(existingUserId) > 0) {
+                alert(`❌ Already Registered!\n\nYour User ID: ${existingUserId}\n\nYou cannot register again. Your dashboard will load automatically.`);
+                setUpgrading(false);
+                loadUserData(userAddress);
+                return;
+            }
 
             // Try to get BNB price from contract, fallback to 903 if fails
             let bnbPriceUsd = 903; // Default fallback
