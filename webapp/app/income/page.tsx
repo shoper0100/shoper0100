@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
+import { fetchBinaryTreeFromContract, getSampleTree } from '@/lib/treeUtils';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
@@ -22,6 +23,8 @@ export default function Dashboard() {
     const [binaryTree, setBinaryTree] = useState<any>(null);
     const [bnbPrice, setBnbPrice] = useState(903); // Default BNB price in USD (fallback)
     const [levelCosts, setLevelCosts] = useState<string[]>([]);
+    const [loadingTree, setLoadingTree] = useState(false);
+    const [treeData, setTreeData] = useState<any>(null);
 
     const connectWallet = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -269,10 +272,28 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        if (userInfo) {
-            buildBinaryTree();
+        if (userInfo && userId > 0) {
+            loadTreeData();
         }
-    }, [userInfo]);
+    }, [userInfo, userId]);
+
+    const loadTreeData = async () => {
+        setLoadingTree(true);
+        try {
+            const tree = await fetchBinaryTreeFromContract(userId, 3);
+            if (tree) {
+                setTreeData(tree);
+            } else {
+                // Fallback to sample data if fetch fails
+                setTreeData(getSampleTree(userId));
+            }
+        } catch (error) {
+            console.error('Error loading tree:', error);
+            setTreeData(getSampleTree(userId));
+        } finally {
+            setLoadingTree(false);
+        }
+    };
 
     const copyToClipboard = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
@@ -773,44 +794,29 @@ export default function Dashboard() {
                                         </div>
 
                                         {/* Binary Tree Visualization */}
-                                        <BinaryTreeView
-                                            rootNode={{
-                                                userId: userId,
-                                                address: userAddress,
-                                                level: userInfo.level,
-                                                leftTeam: Math.floor((userInfo.team || 0) / 2),
-                                                rightTeam: Math.ceil((userInfo.team || 0) / 2),
-                                                positionLeft: userInfo.directTeam || 0,
-                                                positionRight: 0,
-                                                matrixQualified: userInfo.level >= 10,
-                                                // Add sample children for testing
-                                                leftChild: {
-                                                    userId: 37000,
-                                                    address: '0x0000000000000000000000000000000000000001',
-                                                    level: 3,
-                                                    leftTeam: 5,
-                                                    rightTeam: 3,
-                                                    positionLeft: 2,
-                                                    positionRight: 1,
-                                                    matrixQualified: false,
-                                                    leftChild: null,
-                                                    rightChild: null
-                                                },
-                                                rightChild: {
-                                                    userId: 37001,
-                                                    address: '0x0000000000000000000000000000000000000002',
-                                                    level: 5,
-                                                    leftTeam: 10,
-                                                    rightTeam: 8,
-                                                    positionLeft: 4,
-                                                    positionRight: 3,
-                                                    matrixQualified: true,
-                                                    leftChild: null,
-                                                    rightChild: null
-                                                }
-                                            }}
-                                            onViewTeam={(id) => alert(`View team for user ${id}`)}
-                                        />
+                                        {/* Binary Tree Visualization */}
+                                        {loadingTree ? (
+                                            <div className="text-center py-8">
+                                                <div className="animate-spin text-4xl mb-2">🔄</div>
+                                                <p className="text-white">Loading binary tree from blockchain...</p>
+                                                <p className="text-white/60 text-sm">This may take a few moments</p>
+                                            </div>
+                                        ) : treeData ? (
+                                            <BinaryTreeView
+                                                rootNode={treeData}
+                                                onViewTeam={(id) => alert(`View team for user ${id}`)}
+                                            />
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <p className="text-white/60">No tree data available</p>
+                                                <button
+                                                    onClick={() => loadTreeData()}
+                                                    className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                                                >
+                                                    Load Tree Data
+                                                </button>
+                                            </div>
+                                        )}
 
                                         <div className="flex items-center gap-2">
                                             <div className="w-4 h-4 bg-green-500 rounded"></div>
