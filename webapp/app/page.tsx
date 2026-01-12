@@ -198,8 +198,8 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-6xl md:text-8xl font-extrabold text-yellow-300 mb-6 drop-shadow-2xl" style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.7)' }}>
-          💎 FiveDollarBNB
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-extrabold text-yellow-300 mb-6 drop-shadow-2xl leading-tight" style={{ textShadow: '4px 4px 8px rgba(0,0,0,0.7)' }}>
+          <span className="inline-block">💎</span> <span className="inline-block">FiveDollarBNB</span>
         </h1>
         <p className="text-3xl md:text-4xl text-white font-bold mb-4 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.6)' }}>
           Your Gateway to Blockchain Passive Income
