@@ -1,9 +1,9 @@
-# Vercel Deployment Guide - RideBNB Frontend
+# Vercel Deployment Guide - FiveDollarBNB Frontend
 
 ## Prerequisites
 - GitHub repository: https://github.com/shoper0100/shoper0100
 - Vercel account: https://vercel.com
-- Deployed smart contract address on BSC Mainnet
+- Deployed smart contracts on BSC Mainnet (Main + Royalty)
 
 ## Quick Deploy to Vercel
 
@@ -30,12 +30,15 @@
 4. **Set Environment Variables**
    Click "Environment Variables" and add:
    ```
-   NEXT_PUBLIC_CONTRACT_ADDRESS = [Your Deployed Contract Address]
+   NEXT_PUBLIC_CONTRACT_ADDRESS = [Your FiveDollarBNB Contract Address]
+   NEXT_PUBLIC_ROYALTY_ADDRESS = [Your Royalty Contract Address]
    NEXT_PUBLIC_CHAIN_ID = 56
    NEXT_PUBLIC_RPC_URL = https://bsc-dataseed1.binance.org
    NEXT_PUBLIC_EXPLORER_URL = https://bscscan.com
    NEXT_PUBLIC_DEFAULT_REFER = 36999
    NEXT_PUBLIC_NETWORK_NAME = BSC Mainnet
+   NEXT_PUBLIC_PLATFORM_NAME = FiveDollarBNB
+   NEXT_PUBLIC_DOMAIN = fivedollar.bnb
    ```
 
 5. **Deploy**
@@ -66,18 +69,21 @@
    ? Set up and deploy "f:\ridebnb"? [Y/n] y
    ? Which scope? [Your Vercel Account]
    ? Link to existing project? [N/y] n
-   ? What's your project's name? ridebnb
+   ? What's your project's name? fivedollarbnb
    ? In which directory is your code located? webapp
    ```
 
 5. **Set Environment Variables**
    ```bash
    vercel env add NEXT_PUBLIC_CONTRACT_ADDRESS
+   vercel env add NEXT_PUBLIC_ROYALTY_ADDRESS
    vercel env add NEXT_PUBLIC_CHAIN_ID
    vercel env add NEXT_PUBLIC_RPC_URL
    vercel env add NEXT_PUBLIC_EXPLORER_URL
    vercel env add NEXT_PUBLIC_DEFAULT_REFER
    vercel env add NEXT_PUBLIC_NETWORK_NAME
+   vercel env add NEXT_PUBLIC_PLATFORM_NAME
+   vercel env add NEXT_PUBLIC_DOMAIN
    ```
 
 6. **Deploy to Production**
@@ -89,12 +95,15 @@
 
 | Variable | Value | Description |
 |----------|-------|-------------|
-| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Your contract address | Main RideBNB contract on BSC |
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Your contract address | Main FiveDollarBNB contract on BSC |
+| `NEXT_PUBLIC_ROYALTY_ADDRESS` | Your royalty address | Royalty pool contract on BSC |
 | `NEXT_PUBLIC_CHAIN_ID` | `56` | BSC Mainnet Chain ID |
 | `NEXT_PUBLIC_RPC_URL` | `https://bsc-dataseed1.binance.org` | BSC RPC endpoint |
 | `NEXT_PUBLIC_EXPLORER_URL` | `https://bscscan.com` | Block explorer |
 | `NEXT_PUBLIC_DEFAULT_REFER` | `36999` | Default referrer ID |
 | `NEXT_PUBLIC_NETWORK_NAME` | `BSC Mainnet` | Network display name |
+| `NEXT_PUBLIC_PLATFORM_NAME` | `FiveDollarBNB` | Platform branding |
+| `NEXT_PUBLIC_DOMAIN` | `fivedollar.bnb` | Platform domain |
 
 ## Project Structure
 
@@ -107,6 +116,7 @@ ridebnb/
 │   ├── public/         # Static assets
 │   └── package.json
 ├── contracts/          # Smart contracts (not deployed)
+├── presentations/      # Marketing images (not deployed)
 ├── scripts/            # Deployment scripts (not deployed)
 └── vercel.json         # Vercel configuration
 ```
@@ -124,16 +134,17 @@ After successful deployment:
 
 1. **Get Deployment URL**
    - Your app will be at: `https://your-project-name.vercel.app`
-   - Example: `https://ridebnb.vercel.app`
+   - Example: `https://fivedollarbnb.vercel.app`
 
-2. **Update Contract Address**
-   - Deploy your smart contract first
+2. **Update Contract Addresses**
+   - Deploy your smart contracts first
    - Update `NEXT_PUBLIC_CONTRACT_ADDRESS` in Vercel dashboard
+   - Update `NEXT_PUBLIC_ROYALTY_ADDRESS` in Vercel dashboard
    - Redeploy to apply changes
 
 3. **Custom Domain (Optional)**
    - Go to Vercel Dashboard → Project Settings → Domains
-   - Add your custom domain
+   - Add your custom domain (e.g., fivedollar.bnb via DNS provider)
    - Update DNS records as instructed
 
 4. **Test Your Deployment**
@@ -141,6 +152,7 @@ After successful deployment:
    - Connect MetaMask
    - Verify BSC Mainnet connection
    - Test registration and upgrade flows
+   - Test royalty claims
 
 ## Automatic Deployments
 
@@ -177,21 +189,24 @@ npm run build
 
 ### Contract Not Found
 - Ensure `NEXT_PUBLIC_CONTRACT_ADDRESS` is correct
-- Verify contract is deployed on BSC Mainnet
-- Check BSCScan for contract address
+- Ensure `NEXT_PUBLIC_ROYALTY_ADDRESS` is correct
+- Verify contracts are deployed on BSC Mainnet
+- Check BSCScan for contract addresses
 
 ## Support
 
 - **Vercel Docs:** https://vercel.com/docs
 - **Next.js Docs:** https://nextjs.org/docs
 - **Project Repo:** https://github.com/shoper0100/shoper0100
+- **Project Docs:** See CONTRACT_DOCUMENTATION.md, PRESENTATION.md
 
 ## Summary
 
 ✅ **Repository:** Ready for Vercel deployment
 ✅ **Framework:** Next.js 15 with TypeScript
 ✅ **Network:** BSC Mainnet (Chain ID: 56)
+✅ **Platform:** FiveDollarBNB (fivedollar.bnb)
 ✅ **Deploy Time:** ~2-3 minutes
 ✅ **URL:** https://[your-project].vercel.app
 
-Your frontend is now ready to deploy to Vercel! 🚀
+Your FiveDollarBNB frontend is now ready to deploy to Vercel! 🚀
