@@ -1,0 +1,17 @@
+# Ignore everything except webapp
+*
+!webapp/**
+
+# But ignore these in webapp too
+webapp/node_modules/
+webapp/.next/
+webapp/out/
+webapp/.env.local
+webapp/.env*.local
+
+# Ignore documentation and contracts
+presentations/
+contracts/
+scripts/
+*.md
+!webapp/**/*.md
