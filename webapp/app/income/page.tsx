@@ -783,8 +783,31 @@ export default function Dashboard() {
                                                 positionLeft: userInfo.directTeam || 0,
                                                 positionRight: 0,
                                                 matrixQualified: userInfo.level >= 10,
-                                                leftChild: null,
-                                                rightChild: null
+                                                // Add sample children for testing
+                                                leftChild: {
+                                                    userId: 37000,
+                                                    address: '0x0000000000000000000000000000000000000001',
+                                                    level: 3,
+                                                    leftTeam: 5,
+                                                    rightTeam: 3,
+                                                    positionLeft: 2,
+                                                    positionRight: 1,
+                                                    matrixQualified: false,
+                                                    leftChild: null,
+                                                    rightChild: null
+                                                },
+                                                rightChild: {
+                                                    userId: 37001,
+                                                    address: '0x0000000000000000000000000000000000000002',
+                                                    level: 5,
+                                                    leftTeam: 10,
+                                                    rightTeam: 8,
+                                                    positionLeft: 4,
+                                                    positionRight: 3,
+                                                    matrixQualified: true,
+                                                    leftChild: null,
+                                                    rightChild: null
+                                                }
                                             }}
                                             onViewTeam={(id) => alert(`View team for user ${id}`)}
                                         />
@@ -958,16 +981,16 @@ function CompactStat({ label, value, icon, color }: any) {
         orange: 'from-orange-500 to-red-600',
         indigo: 'from-indigo-500 to-purple-600',
         yellow: 'from-yellow-500 to-orange-600',
-        teal: 'from-teal-500 to-cyan-600'
+        teal: 'from-teal-500 to-emerald-600',
     };
 
     return (
-        <div className={`bg-gradient-to-r ${colors[color]} rounded-xl p-3 md:p-4`}>
-            <div className="flex items-center justify-between mb-1">
-                <span className="text-2xl">{icon}</span>
-                <p className="text-white/80 text-xs">{label}</p>
-            </div>
-            <p className="text-white font-bold text-lg md:text-xl">{value}</p>
+        <div
+            onClick={() => alert(`${label} Income Details:\nAmount: ${value} BNB\n\nClick to see transaction history (coming soon)`)}
+            className={`bg-gradient-to-r ${colors[color]} rounded-lg p-3 text-center shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+        >
+            <p className="text-white/80 text-xs mb-1">{icon} {label}</p>
+            <p className="text-white font-extrabold text-lg drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{value}</p>
         </div>
     );
 }
