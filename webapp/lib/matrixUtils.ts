@@ -131,6 +131,7 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
         }
 
         console.log(`✅ Built user map with ${userMap.size} users`);
+        console.log(`🔍 User IDs in map:`, Array.from(userMap.keys()).sort((a, b) => a - b));
 
         // Get root user's team
         const rootUser = userMap.get(rootUserId);
@@ -138,6 +139,8 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
             console.warn(`⚠️ Root user ${rootUserId} not found in events`);
             return generateEmptyMatrix();
         }
+
+        console.log(`👤 Root user ${rootUserId} loaded:`, rootUser);
 
         // Build matrix levels (1-13)
         const matrixLevels: MatrixLevel[] = [];
@@ -150,15 +153,21 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
             // Find users in this level of root user's downline
             const levelUsers = findUsersAtLevel(rootUserId, level, userMap);
 
+            console.log(`📊 Level ${level}: Found ${levelUsers.length} users (need ${totalPositions} positions)`);
+            if (levelUsers.length > 0) {
+                console.log(`   User IDs:`, levelUsers.map(u => `${u.userId}(${u.referrer === rootUserId ? 'D' : 'S'})`).join(', '));
+            }
+
             // Fill positions
             for (let i = 0; i < totalPositions; i++) {
                 const user = levelUsers[i];
                 if (user) {
+                    const isDirect = user.referrer === rootUserId;
                     positions.push({
                         userId: user.userId,
                         address: user.address,
-                        isDirect: user.referrer === rootUserId, // Direct if referred by root
-                        isSpilled: user.referrer !== rootUserId // Spilled if not direct
+                        isDirect: isDirect, // Direct if referred by root
+                        isSpilled: !isDirect // Spilled if not direct
                     });
                     filledCount++;
                 } else {
