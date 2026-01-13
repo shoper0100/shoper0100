@@ -6,6 +6,7 @@ import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
 import HierarchicalMatrixView, { getSampleMatrixData } from '@/components/HierarchicalMatrixView';
 import { fetchBinaryTreeFromContract, getSampleTree } from '@/lib/treeUtils';
+import { fetchMatrixFromContract } from '@/lib/matrixUtils';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
@@ -282,16 +283,29 @@ export default function Dashboard() {
     const loadTreeData = async () => {
         setLoadingTree(true);
         try {
+            // Fetch real matrix data from contract events
+            console.log('Fetching matrix data from blockchain...');
+            const matrix = await fetchMatrixFromContract(userId);
+
+            if (matrix && matrix.length > 0) {
+                setMatrixData(matrix);
+                console.log('✅ Matrix data loaded successfully');
+            } else {
+                // Fallback to sample data if fetch fails
+                console.warn('⚠️ Using sample matrix data');
+                setMatrixData(getSampleMatrixData());
+            }
+
+            // Also try to fetch tree data
             const tree = await fetchBinaryTreeFromContract(userId, 3);
             if (tree) {
                 setTreeData(tree);
             } else {
-                // Fallback to sample data if fetch fails
                 setTreeData(getSampleTree(userId));
             }
         } catch (error) {
-            console.error('Error loading tree:', error);
-            setTreeData(getSampleTree(userId));
+            console.error('Error loading matrix data:', error);
+            setMatrixData(getSampleMatrixData());
         } finally {
             setLoadingTree(false);
         }
