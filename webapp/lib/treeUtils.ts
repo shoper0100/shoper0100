@@ -28,20 +28,37 @@ export async function fetchBinaryTreeFromContract(
     try {
         console.log(`🌳 Fetching binary tree for user ${rootUserId} (max depth: ${maxDepth})`);
 
-        const provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[0]);
-        const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+        // Try multiple RPC endpoints with smaller block range
+        let provider;
+        let contract;
+        let events = [];
 
-        // Get current block number
-        const currentBlock = await provider.getBlockNumber();
-        // Query last 100,000 blocks (~8 days on BSC) to avoid RPC limits
-        const fromBlock = Math.max(0, currentBlock - 100000);
+        for (let rpcIdx = 0; rpcIdx < Math.min(3, CONTRACTS.rpcUrls.length); rpcIdx++) {
+            try {
+                console.log(`Trying RPC ${rpcIdx + 1}...`);
+                provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[rpcIdx]);
+                contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
-        // Query UserRegistered events from recent blocks
-        const filter = contract.filters.UserRegistered();
-        console.log(`🔍 Querying UserRegistered events from block ${fromBlock} to ${currentBlock}...`);
+                // Get current block
+                const currentBlock = await provider.getBlockNumber();
+                // Query only last 10,000 blocks (~30 minutes on BSC) to avoid rate limits
+                const fromBlock = Math.max(0, currentBlock - 10000);
 
-        const events = await contract.queryFilter(filter, fromBlock, currentBlock);
-        console.log(`✅ Found ${events.length} registration events`);
+                const filter = contract.filters.UserRegistered();
+                console.log(`🔍 Querying events from block ${fromBlock} to ${currentBlock}...`);
+
+                events = await contract.queryFilter(filter, fromBlock, currentBlock);
+                console.log(`✅ Successfully fetched ${events.length} events from RPC ${rpcIdx + 1}`);
+                break; // Success, exit loop
+            } catch (e: any) {
+                console.warn(`⚠️ RPC ${rpcIdx + 1} failed:`, e.message);
+                if (rpcIdx === Math.min(2, CONTRACTS.rpcUrls.length - 1)) {
+                    throw new Error('All RPC endpoints failed');
+                }
+                // Try next RPC
+                await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay before retry
+            }
+        }
 
         // Build children mapping from upline relationships
         const childrenMap = new Map<number, number[]>();
