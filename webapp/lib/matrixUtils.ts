@@ -26,11 +26,15 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
         console.log(`📊 Fetching matrix data for user ${rootUserId}...`);
 
         // Use private RPC from env if available, otherwise fallback to public RPCs
-        const rpcUrls = process.env.NEXT_PUBLIC_RPC_URL
-            ? [process.env.NEXT_PUBLIC_RPC_URL, ...CONTRACTS.rpcUrls]
-            : CONTRACTS.rpcUrls;
+        const envRpc = process.env.NEXT_PUBLIC_RPC_URL;
+        const rpcUrls = envRpc ? [envRpc, ...CONTRACTS.rpcUrls] : CONTRACTS.rpcUrls;
 
-        console.log(`🔌 Using ${rpcUrls.length} RPC endpoint(s) for queries`);
+        console.log(`🔌 RPC Configuration:`);
+        console.log(`  - Private RPC: ${envRpc ? '✓ Configured' : '✗ Not set'}`);
+        console.log(`  - Total endpoints: ${rpcUrls.length}`);
+        if (envRpc) {
+            console.log(`  - Using: ${envRpc.substring(0, 40)}...`);
+        }
 
         let provider;
         let contract;
@@ -39,26 +43,43 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
         for (let rpcIdx = 0; rpcIdx < Math.min(3, rpcUrls.length); rpcIdx++) {
             try {
                 const rpcUrl = rpcUrls[rpcIdx];
-                console.log(`Trying RPC ${rpcIdx + 1}/${Math.min(3, rpcUrls.length)}...`);
+                const rpcName = rpcIdx === 0 && envRpc ? 'Private RPC' : `Public RPC ${rpcIdx + 1}`;
+
+                console.log(`\n🔄 Attempt ${rpcIdx + 1}/${Math.min(3, rpcUrls.length)}: ${rpcName}`);
+                console.log(`   URL: ${rpcUrl.substring(0, 40)}...`);
+
                 provider = new ethers.JsonRpcProvider(rpcUrl);
                 contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
+                console.log(`   ⏳ Getting current block...`);
                 const currentBlock = await provider.getBlockNumber();
-                const fromBlock = Math.max(0, currentBlock - 10000); // Last 10k blocks only
+
+                // Reduce to 5000 blocks (15 min on BSC) to minimize RPC load
+                const fromBlock = Math.max(0, currentBlock - 5000);
+                const blockRange = currentBlock - fromBlock;
+
+                console.log(`   📦 Block range: ${fromBlock} → ${currentBlock} (${blockRange} blocks)`);
+                console.log(`   🔍 Querying UserRegistered events...`);
 
                 const filter = contract.filters.UserRegistered();
-                console.log(`🔍 Querying events from block ${fromBlock} to ${currentBlock}...`);
-
                 events = await contract.queryFilter(filter, fromBlock, currentBlock);
-                console.log(`✅ Fetched ${events.length} events successfully!`);
+
+                console.log(`   ✅ SUCCESS! Fetched ${events.length} events`);
                 break;
             } catch (e: any) {
-                console.warn(`⚠️ RPC ${rpcIdx + 1} failed:`, e.message);
+                console.error(`   ❌ FAILED: ${e.message}`);
+                console.error(`   Error code: ${e.code || 'unknown'}`);
+
                 if (rpcIdx === Math.min(2, rpcUrls.length - 1)) {
-                    console.error('❌ All RPC endpoints failed');
-                    throw new Error(`All RPCs failed - last error: ${e.message}`);
+                    console.error(`\n💥 All ${Math.min(3, rpcUrls.length)} RPC endpoints failed`);
+                    console.error(`Last error: ${e.message}`);
+                    throw new Error(`All RPCs failed - ${e.message}`);
                 }
-                await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay
+
+                // Exponential backoff: 500ms, 1000ms, 1500ms
+                const delay = (rpcIdx + 1) * 500;
+                console.log(`   ⏸️  Waiting ${delay}ms before next attempt...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
 
