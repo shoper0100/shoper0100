@@ -57,13 +57,13 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
                 // For Alchemy Free tier: 10 block limit per query!
                 // Query in chunks with delay between each chunk
                 const CHUNK_SIZE = 10; // Alchemy Free tier limit
-                const TOTAL_BLOCKS = 500; // Reduced from 5000 to finish faster
+                const TOTAL_BLOCKS = 50000; // Last 50k blocks (~4 hours on BSC, ~2 days on opBNB)
                 const fromBlock = Math.max(0, currentBlock - TOTAL_BLOCKS);
                 const totalChunks = Math.ceil(TOTAL_BLOCKS / CHUNK_SIZE);
 
                 console.log(`   📦 Total range: ${fromBlock} → ${currentBlock} (${TOTAL_BLOCKS} blocks)`);
                 console.log(`   🔍 Querying in ${totalChunks} chunks of ${CHUNK_SIZE} blocks each...`);
-                console.log(`   ⚠️  This may take ~${Math.ceil(totalChunks / 2)} seconds (Free tier limits)`);
+                console.log(`   ⚠️  This will take ~${Math.ceil(totalChunks * 0.2 / 60)} minutes (${totalChunks} chunks × 200ms)`);
 
                 const filter = contract.filters.UserRegistered();
                 events = [];
