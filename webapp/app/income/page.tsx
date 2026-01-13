@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
+import HierarchicalMatrixView, { getSampleMatrixData } from '@/components/HierarchicalMatrixView';
 import { fetchBinaryTreeFromContract, getSampleTree } from '@/lib/treeUtils';
 
 export default function Dashboard() {
@@ -25,6 +26,7 @@ export default function Dashboard() {
     const [levelCosts, setLevelCosts] = useState<string[]>([]);
     const [loadingTree, setLoadingTree] = useState(false);
     const [treeData, setTreeData] = useState<any>(null);
+    const [matrixData, setMatrixData] = useState<any>(null);
 
     const connectWallet = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -794,26 +796,26 @@ export default function Dashboard() {
                                         </div>
 
                                         {/* Binary Tree Visualization */}
-                                        {/* Binary Tree Visualization */}
+                                        {/* Hierarchical Matrix Visualization */}
                                         {loadingTree ? (
                                             <div className="text-center py-8">
                                                 <div className="animate-spin text-4xl mb-2">🔄</div>
-                                                <p className="text-white">Loading binary tree from blockchain...</p>
-                                                <p className="text-white/60 text-sm">This may take a few moments</p>
+                                                <p className="text-white">Loading matrix data...</p>
+                                                <p className="text-white/60 text-sm">Fetching position data from blockchain</p>
                                             </div>
-                                        ) : treeData ? (
-                                            <BinaryTreeView
-                                                rootNode={treeData}
-                                                onViewTeam={(id) => alert(`View team for user ${id}`)}
+                                        ) : matrixData ? (
+                                            <HierarchicalMatrixView
+                                                levels={matrixData}
+                                                onRefresh={() => loadTreeData()}
                                             />
                                         ) : (
                                             <div className="text-center py-8">
-                                                <p className="text-white/60">No tree data available</p>
+                                                <p className="text-white/60">No matrix data available</p>
                                                 <button
-                                                    onClick={() => loadTreeData()}
+                                                    onClick={() => { setMatrixData(getSampleMatrixData()) }}
                                                     className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
                                                 >
-                                                    Load Tree Data
+                                                    Load Matrix Data
                                                 </button>
                                             </div>
                                         )}
