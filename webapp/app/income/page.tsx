@@ -268,29 +268,25 @@ export default function Dashboard() {
         console.log('- Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
         console.log('- Contract:', process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
 
-        // Use sample data by default due to RPC rate limits
-        // Even premium RPCs can rate-limit event queries
-        console.log('💡 Using sample matrix data (RPC event queries rate-limited)');
-        setMatrixData(getSampleMatrixData());
-
-        /* 
-        // TO ENABLE REAL DATA (requires premium RPC with high limits):
+        // Fetch REAL DATA from blockchain using private RPC
+        console.log('📡 Fetching real team data from blockchain...');
         setLoadingTree(true);
         try {
             const matrix = await fetchMatrixFromContract(userId);
             if (matrix && matrix.length > 0) {
                 setMatrixData(matrix);
-                console.log('✅ Real data loaded');
+                console.log('✅ Real blockchain data loaded successfully!');
             } else {
+                console.warn('⚠️ No data returned, using sample data');
                 setMatrixData(getSampleMatrixData());
             }
         } catch (error) {
-            console.error('RPC Error:', error);
+            console.error('❌ RPC Error:', error);
+            console.log('💡 Fallback: Using sample data');
             setMatrixData(getSampleMatrixData());
         } finally {
             setLoadingTree(false);
         }
-        */
     };
 
     const copyToClipboard = (text: string, label: string) => {
