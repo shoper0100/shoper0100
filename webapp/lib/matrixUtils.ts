@@ -54,17 +54,43 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
                 console.log(`   ⏳ Getting current block...`);
                 const currentBlock = await provider.getBlockNumber();
 
-                // Reduce to 5000 blocks (15 min on BSC) to minimize RPC load
-                const fromBlock = Math.max(0, currentBlock - 5000);
-                const blockRange = currentBlock - fromBlock;
+                // For Alchemy Free tier: 10 block limit per query!
+                // Query in chunks with delay between each chunk
+                const CHUNK_SIZE = 10; // Alchemy Free tier limit
+                const TOTAL_BLOCKS = 500; // Reduced from 5000 to finish faster
+                const fromBlock = Math.max(0, currentBlock - TOTAL_BLOCKS);
+                const totalChunks = Math.ceil(TOTAL_BLOCKS / CHUNK_SIZE);
 
-                console.log(`   📦 Block range: ${fromBlock} → ${currentBlock} (${blockRange} blocks)`);
-                console.log(`   🔍 Querying UserRegistered events...`);
+                console.log(`   📦 Total range: ${fromBlock} → ${currentBlock} (${TOTAL_BLOCKS} blocks)`);
+                console.log(`   🔍 Querying in ${totalChunks} chunks of ${CHUNK_SIZE} blocks each...`);
+                console.log(`   ⚠️  This may take ~${Math.ceil(totalChunks / 2)} seconds (Free tier limits)`);
 
                 const filter = contract.filters.UserRegistered();
-                events = await contract.queryFilter(filter, fromBlock, currentBlock);
+                events = [];
 
-                console.log(`   ✅ SUCCESS! Fetched ${events.length} events`);
+                for (let i = 0; i < totalChunks; i++) {
+                    const chunkStart = fromBlock + (i * CHUNK_SIZE);
+                    const chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, currentBlock);
+
+                    try {
+                        const chunkEvents = await contract.queryFilter(filter, chunkStart, chunkEnd);
+                        events.push(...chunkEvents);
+
+                        if ((i + 1) % 10 === 0 || i === totalChunks - 1) {
+                            console.log(`   📊 Progress: ${i + 1}/${totalChunks} chunks (${events.length} events so far)`);
+                        }
+
+                        // Rate limiting: 200ms delay between chunks to respect free tier
+                        if (i < totalChunks - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 200));
+                        }
+                    } catch (chunkError: any) {
+                        console.warn(`   ⚠️  Chunk ${i + 1} failed: ${chunkError.message}`);
+                        // Continue with other chunks
+                    }
+                }
+
+                console.log(`   ✅ SUCCESS! Fetched ${events.length} events from ${totalChunks} chunks`);
                 break;
             } catch (e: any) {
                 console.error(`   ❌ FAILED: ${e.message}`);
