@@ -26,22 +26,27 @@ export async function fetchBinaryTreeFromContract(
     maxDepth: number = 3
 ): Promise<TreeNode | null> {
     try {
-        console.log(`\ud83c\udf33 Fetching binary tree for user ${rootUserId} (max depth: ${maxDepth})`);
+        console.log(`🌳 Fetching binary tree for user ${rootUserId} (max depth: ${maxDepth})`);
 
         const provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[0]);
         const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
-        // Query all UserRegistered events from blockchain
-        const filter = contract.filters.UserRegistered();
-        console.log('\ud83d\udd0d Querying UserRegistered events from blockchain...');
+        // Get current block number
+        const currentBlock = await provider.getBlockNumber();
+        // Query last 100,000 blocks (~8 days on BSC) to avoid RPC limits
+        const fromBlock = Math.max(0, currentBlock - 100000);
 
-        const events = await contract.queryFilter(filter, 0, 'latest');
-        console.log(`\u2705 Found ${events.length} registration events`);
+        // Query UserRegistered events from recent blocks
+        const filter = contract.filters.UserRegistered();
+        console.log(`🔍 Querying UserRegistered events from block ${fromBlock} to ${currentBlock}...`);
+
+        const events = await contract.queryFilter(filter, fromBlock, currentBlock);
+        console.log(`✅ Found ${events.length} registration events`);
 
         // Build children mapping from upline relationships
         const childrenMap = new Map<number, number[]>();
 
-        console.log('\ud83d\udee0\ufe0f Building children mapping...');
+        console.log('🛠️ Building children mapping...');
         for (const event of events) {
             const userId = Number(event.args?.userId);
 
@@ -62,21 +67,21 @@ export async function fetchBinaryTreeFromContract(
                     }
                 }
             } catch (e) {
-                console.warn(`\u26a0\ufe0f Failed to get info for user ${userId}:`, e);
+                console.warn(`⚠️ Failed to get info for user ${userId}:`, e);
             }
         }
 
-        console.log(`\u2705 Children mapping built: ${childrenMap.size} parents found`);
-        console.log(`\ud83d\udcc4 Root user ${rootUserId} has children:`, childrenMap.get(rootUserId) || 'None');
+        console.log(`✅ Children mapping built: ${childrenMap.size} parents found`);
+        console.log(`📄 Root user ${rootUserId} has children:`, childrenMap.get(rootUserId) || 'None');
 
         // Build tree recursively
         const tree = await buildTreeNode(rootUserId, childrenMap, contract, 0, maxDepth);
 
-        console.log(`\u2705 Binary tree built successfully!`);
+        console.log(`✅ Binary tree built successfully!`);
         return tree;
 
     } catch (error) {
-        console.error('\u274c Failed to fetch binary tree from contract:', error);
+        console.error('❌ Failed to fetch binary tree from contract:', error);
         return null;
     }
 }
