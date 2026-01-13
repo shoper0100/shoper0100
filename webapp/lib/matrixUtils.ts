@@ -49,7 +49,12 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
                 console.log(`   URL: ${rpcUrl.substring(0, 40)}...`);
 
                 provider = new ethers.JsonRpcProvider(rpcUrl);
-                contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+
+                // Use contract address from environment (supports testnet/mainnet)
+                const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
+                console.log(`   📄 Contract: ${contractAddress}`);
+
+                contract = new ethers.Contract(contractAddress, MAIN_ABI, provider);
 
                 console.log(`   ⏳ Getting current block...`);
                 const currentBlock = await provider.getBlockNumber();
