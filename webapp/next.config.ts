@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,  // Skip ESLint during production builds
-  },
   typescript: {
-    ignoreBuildErrors: true,  // Skip TypeScript errors during production builds
+    ignoreBuildErrors: true,
   },
+  turbopack: {
+    root: process.cwd(),
+  }
 };
 
 export default nextConfig;

@@ -25,15 +25,22 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
     try {
         console.log(`📊 Fetching matrix data for user ${rootUserId}...`);
 
-        // Try multiple RPC endpoints
+        // Use private RPC from env if available, otherwise fallback to public RPCs
+        const rpcUrls = process.env.NEXT_PUBLIC_RPC_URL
+            ? [process.env.NEXT_PUBLIC_RPC_URL, ...CONTRACTS.rpcUrls]
+            : CONTRACTS.rpcUrls;
+
+        console.log(`🔌 Using ${rpcUrls.length} RPC endpoint(s) for queries`);
+
         let provider;
         let contract;
         let events = [];
 
-        for (let rpcIdx = 0; rpcIdx < Math.min(3, CONTRACTS.rpcUrls.length); rpcIdx++) {
+        for (let rpcIdx = 0; rpcIdx < Math.min(3, rpcUrls.length); rpcIdx++) {
             try {
-                console.log(`Trying RPC ${rpcIdx + 1}...`);
-                provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[rpcIdx]);
+                const rpcUrl = rpcUrls[rpcIdx];
+                console.log(`Trying RPC ${rpcIdx + 1}/${Math.min(3, rpcUrls.length)}...`);
+                provider = new ethers.JsonRpcProvider(rpcUrl);
                 contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
                 const currentBlock = await provider.getBlockNumber();
@@ -43,12 +50,13 @@ export async function fetchMatrixFromContract(rootUserId: number): Promise<Matri
                 console.log(`🔍 Querying events from block ${fromBlock} to ${currentBlock}...`);
 
                 events = await contract.queryFilter(filter, fromBlock, currentBlock);
-                console.log(`✅ Fetched ${events.length} events from RPC ${rpcIdx + 1}`);
+                console.log(`✅ Fetched ${events.length} events successfully!`);
                 break;
             } catch (e: any) {
                 console.warn(`⚠️ RPC ${rpcIdx + 1} failed:`, e.message);
-                if (rpcIdx === Math.min(2, CONTRACTS.rpcUrls.length - 1)) {
-                    throw new Error('All RPCs failed');
+                if (rpcIdx === Math.min(2, rpcUrls.length - 1)) {
+                    console.error('❌ All RPC endpoints failed');
+                    throw new Error(`All RPCs failed - last error: ${e.message}`);
                 }
                 await new Promise(resolve => setTimeout(resolve, 500)); // Brief delay
             }

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { useAccount, useDisconnect } from 'wagmi';
+import { useWeb3Modal } from '@web3modal/wagmi/react';
+import { useEthersSigner, useEthersProvider } from '@/lib/ethersAdapter';
 import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
 import HierarchicalMatrixView, { getSampleMatrixData } from '@/components/HierarchicalMatrixView';
@@ -10,6 +13,14 @@ import { fetchMatrixFromContract } from '@/lib/matrixUtils';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
+
+    // WalletConnect Hooks
+    const { address, isConnected } = useAccount();
+    const { open } = useWeb3Modal();
+    const { disconnect } = useDisconnect();
+    const signer = useEthersSigner();
+    const provider = useEthersProvider();
+
     const [userId, setUserId] = useState(0);
     const [balance, setBalance] = useState('0');
     const [incomeData, setIncomeData] = useState<any>(null);
@@ -29,61 +40,31 @@ export default function Dashboard() {
     const [treeData, setTreeData] = useState<any>(null);
     const [matrixData, setMatrixData] = useState<any>(null);
 
-    const connectWallet = async () => {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-                // Check if on BSC Mainnet (chainId 56)
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                if (chainId !== '0x38') { // 0x38 = 56 in hex (BSC Mainnet)
-                    try {
-                        // Try to switch to BSC Mainnet
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x38' }],
-                        });
-                    } catch (switchError: any) {
-                        // If BSC Mainnet not added, add it
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: '0x38',
-                                    chainName: 'BNB Smart Chain Mainnet',
-                                    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
-                                    rpcUrls: ['https://bsc-dataseed1.binance.org'],
-                                    blockExplorerUrls: ['https://bscscan.com']
-                                }]
-                            });
-                        } else {
-                            throw switchError;
-                        }
-                    }
-                }
-
-                setUserAddress(accounts[0]);
-                loadUserData(accounts[0]);
-                loadBalance(accounts[0]);
-            } catch (error) {
-                console.error('Wallet connection failed:', error);
-            }
+    // Sync Wagmi address to local state and load data
+    useEffect(() => {
+        if (isConnected && address && provider) {
+            setUserAddress(address);
+            loadUserData(address);
+            loadBalance(address);
         } else {
-            alert('Please install MetaMask!');
+            setUserAddress('');
+            setUserId(0);
+            setIncomeData(null);
+            setUserInfo(null);
         }
+    }, [address, isConnected, provider]);
+
+    const connectWallet = async () => {
+        await open();
     };
 
-    const disconnectWallet = () => {
-        setUserAddress('');
-        setUserId(0);
-        setBalance('0');
-        setIncomeData(null);
-        setUserInfo(null);
+    const disconnectWallet = async () => {
+        await disconnect();
     };
 
     const loadBalance = async (address: string) => {
+        if (!provider) return;
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const bal = await provider.getBalance(address);
             setBalance(ethers.formatEther(bal));
         } catch (error) {
@@ -92,9 +73,9 @@ export default function Dashboard() {
     };
 
     const loadUserData = async (address: string) => {
+        if (!provider) return;
         setLoading(true);
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
             const id = await contract.id(address);
@@ -150,8 +131,8 @@ export default function Dashboard() {
     };
 
     const loadRoyaltyIncome = async (userId: number) => {
+        if (!provider) return;
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const royaltyContract = new ethers.Contract(CONTRACTS.ROYALTY, ROYALTY_ABI, provider);
 
             let totalRoyalty = 0;
@@ -169,9 +150,9 @@ export default function Dashboard() {
     };
 
     const loadTeamData = async (userId: number) => {
+        if (!provider) return;
         setLoadingTeam(true);
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
             const teamList: any[] = [];
@@ -208,8 +189,8 @@ export default function Dashboard() {
     };
 
     const loadBnbPrice = async () => {
+        if (!provider) return;
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
             const price = await contract.bnbPrice();
             const priceUsd = Number(ethers.formatEther(price));
@@ -222,8 +203,8 @@ export default function Dashboard() {
     };
 
     const loadLevelCosts = async () => {
+        if (!provider) return;
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
             const costs: string[] = [];
             // Levels 0-12 (representing L1-L13 costs)
@@ -341,8 +322,12 @@ export default function Dashboard() {
 
         try {
             setUpgrading(true);
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
+
+            if (!signer) {
+                alert('Please connect wallet first');
+                return;
+            }
+
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, signer);
 
             // CHECK: Is user already registered?
@@ -410,8 +395,8 @@ export default function Dashboard() {
     };
 
     const calculateUpgradeCost = async (currentLevel: number, levels: number) => {
+        if (!provider) return;
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
 
             let totalCost = BigInt(0);
@@ -432,13 +417,11 @@ export default function Dashboard() {
 
         setUpgrading(true);
         try {
-            if (typeof window.ethereum === 'undefined') {
-                alert('Please install MetaMask!');
+            if (!signer || !provider) {
+                alert('Please connect wallet first');
                 return;
             }
 
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, signer);
 
             // Check balance first

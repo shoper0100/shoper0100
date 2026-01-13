@@ -60,8 +60,8 @@ export default function HierarchicalMatrixView({ levels, onRefresh }: Hierarchic
                             <div
                                 onClick={() => hasPositions && toggleLevel(levelData.level)}
                                 className={`flex items-center justify-between px-4 py-2 rounded ${hasPositions
-                                        ? 'bg-white/10 hover:bg-white/20 cursor-pointer'
-                                        : 'bg-white/5'
+                                    ? 'bg-white/10 hover:bg-white/20 cursor-pointer'
+                                    : 'bg-white/5'
                                     } transition-colors`}
                             >
                                 <div className="flex items-center gap-3">
@@ -109,10 +109,10 @@ export default function HierarchicalMatrixView({ levels, onRefresh }: Hierarchic
                                             <div
                                                 key={idx}
                                                 className={`w-6 h-6 rounded flex items-center justify-center text-xs ${pos.userId
-                                                        ? pos.isDirect
-                                                            ? 'bg-blue-500 text-white' // Direct placement
-                                                            : 'bg-green-500 text-white' // Spilled placement
-                                                        : 'bg-gray-700 text-gray-400' // Vacant
+                                                    ? pos.isDirect
+                                                        ? 'bg-blue-500 text-white' // Direct placement
+                                                        : 'bg-green-500 text-white' // Spilled placement
+                                                    : 'bg-gray-700 text-gray-400' // Vacant
                                                     }`}
                                                 title={
                                                     pos.userId
