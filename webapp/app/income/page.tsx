@@ -281,34 +281,35 @@ export default function Dashboard() {
     }, [userInfo, userId]);
 
     const loadTreeData = async () => {
+        // Debug: Check if env vars are loaded
+        console.log('🔍 Environment Check:');
+        console.log('- RPC URL:', process.env.NEXT_PUBLIC_RPC_URL ? 'Configured ✓' : 'Not set ✗');
+        console.log('- Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
+        console.log('- Contract:', process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
+
+        // Use sample data by default due to RPC rate limits
+        // Even premium RPCs can rate-limit event queries
+        console.log('💡 Using sample matrix data (RPC event queries rate-limited)');
+        setMatrixData(getSampleMatrixData());
+
+        /* 
+        // TO ENABLE REAL DATA (requires premium RPC with high limits):
         setLoadingTree(true);
         try {
-            // Fetch real matrix data from contract events
-            console.log('Fetching matrix data from blockchain...');
             const matrix = await fetchMatrixFromContract(userId);
-
             if (matrix && matrix.length > 0) {
                 setMatrixData(matrix);
-                console.log('✅ Matrix data loaded successfully');
+                console.log('✅ Real data loaded');
             } else {
-                // Fallback to sample data if fetch fails
-                console.warn('⚠️ Using sample matrix data');
                 setMatrixData(getSampleMatrixData());
             }
-
-            // Also try to fetch tree data
-            const tree = await fetchBinaryTreeFromContract(userId, 3);
-            if (tree) {
-                setTreeData(tree);
-            } else {
-                setTreeData(getSampleTree(userId));
-            }
         } catch (error) {
-            console.error('Error loading matrix data:', error);
+            console.error('RPC Error:', error);
             setMatrixData(getSampleMatrixData());
         } finally {
             setLoadingTree(false);
         }
+        */
     };
 
     const copyToClipboard = (text: string, label: string) => {
