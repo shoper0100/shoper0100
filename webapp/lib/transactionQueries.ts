@@ -106,6 +106,11 @@ export async function fetchUserTransactions(
                     });
                 }
 
+                // Add delay to avoid rate limits (100ms per chunk)
+                if (i < chunks - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
                 if (i % 100 === 0 && i > 0) {
                     console.log(`   Progress: chunk ${i}/${chunks} (${Math.round(i / chunks * 100)}%)`);
                 }
