@@ -664,7 +664,7 @@ export default function Dashboard() {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <p className="text-white/80 text-xs mb-1">Current Level</p>
-                                                    <p className="text-white font-bold text-2xl">Level {userInfo.level}</p>
+                                                    <p className="text-white font-bold text-2xl">Level {userInfo?.level || 0}</p>
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-white/80 text-xs mb-1">BNB/USD Price</p>
@@ -725,8 +725,8 @@ export default function Dashboard() {
                                                 <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-4">
                                                     <div className="grid grid-cols-2 gap-4 mb-3">
                                                         <div>
-                                                            <p className="text-white/80 text-xs mb-1">Upgrading To</p>
-                                                            <p className="text-yellow-300 font-bold text-2xl">Level {userInfo.level + upgradeLevels}</p>
+                                                            <p className="text-white/80 text-xs font-medium mb-1">Target Level</p>
+                                                            <p className="text-yellow-300 font-bold text-2xl">Level {(userInfo?.level || 0) + upgradeLevels}</p>
                                                         </div>
                                                         <div className="text-right">
                                                             <p className="text-white/80 text-xs mb-1">Levels</p>
@@ -745,7 +745,7 @@ export default function Dashboard() {
                                                 </div>
 
                                                 <button onClick={handleUpgrade} disabled={upgrading} className="w-full bg-white text-green-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 disabled:opacity-50">
-                                                    {upgrading ? '⏳ Upgrading...' : `🚀 Upgrade to Level ${userInfo.level + upgradeLevels}`}
+                                                    {upgrading ? '⏳ Upgrading...' : `🚀 Upgrade to Level ${(userInfo?.level || 0) + upgradeLevels}`}
                                                 </button>
                                             </>
                                         ) : (
