@@ -107,19 +107,35 @@ export async function fetchUserTransactions(
             const matrixFilter = mainContract.filters.MatrixPayment(null, userId);
             const matrixEvents = await mainContract.queryFilter(matrixFilter, fromBlock, currentBlock);
 
-            console.log(`   Found ${matrixEvents.length} matrix payments`);
+            console.log(`   Found ${matrixEvents.length} matrix payment events`);
+
+            // Deduplicate by transaction hash (same tx can have multiple MatrixPayment events for different layers)
+            const matrixByTx = new Map<string, Transaction>();
 
             for (const event of matrixEvents) {
-                const block = await provider.getBlock(event.blockNumber);
-                history.matrixIncome.push({
-                    txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
-                    type: 'matrix',
-                    amount: ethers.formatEther(event.args!.amount),
-                    level: Number(event.args!.level),
-                    blockNumber: event.blockNumber
-                });
+                const txHash = event.transactionHash;
+
+                if (!matrixByTx.has(txHash)) {
+                    const block = await provider.getBlock(event.blockNumber);
+                    matrixByTx.set(txHash, {
+                        txHash: txHash,
+                        timestamp: new Date(block!.timestamp * 1000),
+                        type: 'matrix',
+                        amount: ethers.formatEther(event.args!.amount),
+                        level: Number(event.args!.level),
+                        blockNumber: event.blockNumber
+                    });
+                } else {
+                    // Same transaction, add amounts together (multiple layers)
+                    const existing = matrixByTx.get(txHash)!;
+                    const currentAmount = parseFloat(existing.amount);
+                    const newAmount = parseFloat(ethers.formatEther(event.args!.amount));
+                    existing.amount = (currentAmount + newAmount).toString();
+                }
             }
+
+            history.matrixIncome = Array.from(matrixByTx.values());
+            console.log(`   Deduplicated to ${history.matrixIncome.length} unique matrix transactions`);
         } catch (e) {
             console.warn('   Failed to fetch matrix events:', e);
         }
