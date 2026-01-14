@@ -245,10 +245,12 @@ export default function Dashboard() {
             const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
             const royaltyAddress = process.env.NEXT_PUBLIC_ROYALTY_ADDRESS || CONTRACTS.ROYALTY;
 
+            // Convert Wagmi provider to Ethers provider
+            const ethersProvider = publicClientToProvider(provider);
+
             const history = await fetchUserTransactions(
                 userId,
-                userAddress,
-                provider,
+                ethersProvider,
                 contractAddress,
                 royaltyAddress
             );
@@ -782,8 +784,8 @@ export default function Dashboard() {
                                                     <div
                                                         key={tier}
                                                         className={`rounded-lg p-4 border-2 ${isEligible
-                                                                ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-400/50'
-                                                                : 'bg-gray-800/50 border-gray-600/30'
+                                                            ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-400/50'
+                                                            : 'bg-gray-800/50 border-gray-600/30'
                                                             }`}
                                                     >
                                                         <div className="flex items-center justify-between mb-3">
