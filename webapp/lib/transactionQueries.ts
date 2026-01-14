@@ -1,11 +1,13 @@
-// Simple offline transaction queries - no blockchain events needed
-import { ethers } from 'ethers';
+// Transaction History Queries - Simple & Fast
+import { ethers, Provider } from 'ethers';
+import { MAIN_ABI, ROYALTY_ABI } from './contracts';
 
 export interface Transaction {
     txHash: string;
     timestamp: Date;
-    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade';
+    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade' | 'registration';
     amount: string;
+    from?: string;
     fromUserId?: number;
     level?: number;
     blockNumber: number;
@@ -21,8 +23,7 @@ export interface IncomeHistory {
 }
 
 /**
- * Create mock transaction history based on income amounts
- * This works offline without blockchain queries
+ * Fetch user's transaction history - SIMPLE VERSION (last 5000 blocks only)
  */
 export async function fetchUserTransactions(
     userId: number,
@@ -30,7 +31,7 @@ export async function fetchUserTransactions(
     contractAddress: string,
     royaltyAddress: string
 ): Promise<IncomeHistory> {
-    console.log('📜 Creating offline transaction history for user', userId);
+    console.log(`📜 Fetching transaction history for user ${userId}...`);
 
     const history: IncomeHistory = {
         referralIncome: [],
@@ -41,15 +42,108 @@ export async function fetchUserTransactions(
         totalTransactions: 0
     };
 
-    // Note: For offline capability, transaction history should be fetched from:
-    // 1. Backend API with indexed blockchain data
-    // 2. Local storage cache
-    // 3. Or displayed as summary totals only (no individual transactions)
+    const mainContract = new ethers.Contract(contractAddress, MAIN_ABI, provider);
 
-    console.log('✅ Offline mode: Showing income totals only');
-    console.log('   For detailed transaction history, connect to blockchain');
+    try {
+        const currentBlock = await provider.getBlockNumber();
+        // SIMPLE: Only last 5000 blocks (~4 hours) - fast, no rate limits
+        const fromBlock = Math.max(0, currentBlock - 5000);
 
-    history.totalTransactions = 0;
+        console.log(`   Querying last 5000 blocks (${fromBlock} → ${currentBlock})`);
+
+        // 1. Referral Income
+        try {
+            const referralFilter = mainContract.filters.ReferralPayment(userId);
+            const referralEvents = await mainContract.queryFilter(referralFilter, fromBlock, currentBlock);
+
+            for (const event of referralEvents) {
+                const block = await provider.getBlock(event.blockNumber);
+                history.referralIncome.push({
+                    txHash: event.transactionHash,
+                    timestamp: new Date(block!.timestamp * 1000),
+                    type: 'referral',
+                    amount: ethers.formatEther(event.args!.amount),
+                    fromUserId: Number(event.args!.userId),
+                    blockNumber: event.blockNumber
+                });
+            }
+            console.log(`   ✓ ${referralEvents.length} referral payments`);
+        } catch (e) {
+            console.warn('   Failed to fetch referral events:', e);
+        }
+
+        // 2. Sponsor Income
+        try {
+            const sponsorFilter = mainContract.filters.SponsorCommissionPaid(userId);
+            const sponsorEvents = await mainContract.queryFilter(sponsorFilter, fromBlock, currentBlock);
+
+            for (const event of sponsorEvents) {
+                const block = await provider.getBlock(event.blockNumber);
+                history.sponsorIncome.push({
+                    txHash: event.transactionHash,
+                    timestamp: new Date(block!.timestamp * 1000),
+                    type: 'sponsor',
+                    amount: ethers.formatEther(event.args!.amount),
+                    fromUserId: Number(event.args!.fromUserId),
+                    level: Number(event.args!.level),
+                    blockNumber: event.blockNumber
+                });
+            }
+            console.log(`   ✓ ${sponsorEvents.length} sponsor commissions`);
+        } catch (e) {
+            console.warn('   Failed to fetch sponsor events:', e);
+        }
+
+        // 3. Matrix Income (deduplicated by txHash)
+        try {
+            const matrixFilter = mainContract.filters.MatrixPayment(null, userId);
+            const matrixEvents = await mainContract.queryFilter(matrixFilter, fromBlock, currentBlock);
+
+            const matrixByTx = new Map<string, Transaction>();
+
+            for (const event of matrixEvents) {
+                const txHash = event.transactionHash;
+
+                if (!matrixByTx.has(txHash)) {
+                    const block = await provider.getBlock(event.blockNumber);
+                    matrixByTx.set(txHash, {
+                        txHash: txHash,
+                        timestamp: new Date(block!.timestamp * 1000),
+                        type: 'matrix',
+                        amount: ethers.formatEther(event.args!.amount),
+                        level: Number(event.args!.level),
+                        blockNumber: event.blockNumber
+                    });
+                } else {
+                    const existing = matrixByTx.get(txHash)!;
+                    const currentAmount = parseFloat(existing.amount);
+                    const newAmount = parseFloat(ethers.formatEther(event.args!.amount));
+                    existing.amount = (currentAmount + newAmount).toString();
+                }
+            }
+
+            history.matrixIncome = Array.from(matrixByTx.values());
+            console.log(`   ✓ ${history.matrixIncome.length} matrix transactions (${matrixEvents.length} events)`);
+        } catch (e) {
+            console.warn('   Failed to fetch matrix events:', e);
+        }
+
+        // Calculate total
+        history.totalTransactions =
+            history.referralIncome.length +
+            history.sponsorIncome.length +
+            history.matrixIncome.length +
+            history.royaltyIncome.length +
+            history.upgrades.length;
+
+        console.log(`✅ Loaded ${history.totalTransactions} transactions (last 4 hours)`);
+        console.log(`   - Referral: ${history.referralIncome.length}`);
+        console.log(`   - Sponsor: ${history.sponsorIncome.length}`);
+        console.log(`   - Matrix: ${history.matrixIncome.length}`);
+
+    } catch (error) {
+        console.error('Failed to fetch transaction history:', error);
+    }
 
     return history;
 }
