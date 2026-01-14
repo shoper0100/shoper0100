@@ -71,7 +71,7 @@ export default function Dashboard() {
     };
 
     const loadBalance = async (address: string) => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         try {
             const bal = await provider.getBalance(address);
             setBalance(ethers.formatEther(bal));
@@ -81,10 +81,10 @@ export default function Dashboard() {
     };
 
     const loadUserData = async (address: string) => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         setLoading(true);
         try {
-            const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+            const contract = new ethers.Contract(, , ethersProvider);
 
             const id = await contract.id(address);
             const userIdNum = Number(id);
@@ -147,9 +147,9 @@ export default function Dashboard() {
     };
 
     const loadRoyaltyIncome = async (userId: number) => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         try {
-            const royaltyContract = new ethers.Contract(CONTRACTS.ROYALTY, ROYALTY_ABI, provider);
+            const royaltyContract = new ethers.Contract(, , ethersProvider);
 
             let totalRoyalty = 0;
             for (let tier = 0; tier < 4; tier++) {
@@ -166,10 +166,10 @@ export default function Dashboard() {
     };
 
     const loadTeamData = async (userId: number) => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         setLoadingTeam(true);
         try {
-            const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+            const contract = new ethers.Contract(, , ethersProvider);
 
             const teamList: any[] = [];
             const userDetails = await contract.userInfo(userId);
@@ -205,9 +205,9 @@ export default function Dashboard() {
     };
 
     const loadBnbPrice = async () => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+            const contract = new ethers.Contract(, , ethersProvider);
             const price = await contract.bnbPrice();
             const priceUsd = Number(ethers.formatEther(price));
             console.log(`BNB Price: $${priceUsd}`);
@@ -219,9 +219,9 @@ export default function Dashboard() {
     };
 
     const loadLevelCosts = async () => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+            const contract = new ethers.Contract(, , ethersProvider);
             const costs: string[] = [];
             // Levels 0-12 (representing L1-L13 costs)
             for (let i = 0; i < 13; i++) {
@@ -456,9 +456,9 @@ export default function Dashboard() {
     };
 
     const calculateUpgradeCost = async (currentLevel: number, levels: number) => {
-        if (!provider) return;
+        if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+            const contract = new ethers.Contract(, , ethersProvider);
 
             let totalCost = BigInt(0);
             for (let i = 0; i < levels; i++) {
