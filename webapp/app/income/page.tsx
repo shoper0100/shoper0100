@@ -587,11 +587,11 @@ export default function Dashboard() {
                                         <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-4 border border-yellow-400/20">
                                             <p className="text-yellow-200 text-sm font-bold mb-3 drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>💰 Income Statistics</p>
                                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                                                <CompactStat label="Total" value={`${parseFloat(incomeData.totalIncome || '0').toFixed(4)}`} icon="📈" color="blue" />
-                                                <CompactStat label="Referral" value={`${parseFloat(incomeData.referralIncome || '0').toFixed(4)}`} icon="👥" color="purple" />
-                                                <CompactStat label="Sponsor" value={`${parseFloat(incomeData.sponsorIncome || '0').toFixed(4)}`} icon="🎯" color="orange" />
-                                                <CompactStat label="Matrix" value={`${parseFloat(incomeData.levelIncome || '0').toFixed(4)}`} icon="🌐" color="indigo" />
-                                                <CompactStat label="Royalty" value={`${parseFloat(incomeData.royaltyIncome || '0').toFixed(4)}`} icon="👑" color="yellow" />
+                                                <CompactStat label="Total" value={`${parseFloat(incomeData.totalIncome || '0').toFixed(4)}`} icon="📈" color="blue" onClick={() => handleIncomeCardClick('all')} txCount={transactionHistory?.totalTransactions} />
+                                                <CompactStat label="Referral" value={`${parseFloat(incomeData.referralIncome || '0').toFixed(4)}`} icon="👥" color="purple" onClick={() => handleIncomeCardClick('referral')} txCount={transactionHistory?.referralIncome.length} />
+                                                <CompactStat label="Sponsor" value={`${parseFloat(incomeData.sponsorIncome || '0').toFixed(4)}`} icon="🎯" color="orange" onClick={() => handleIncomeCardClick('sponsor')} txCount={transactionHistory?.sponsorIncome.length} />
+                                                <CompactStat label="Matrix" value={`${parseFloat(incomeData.levelIncome || '0').toFixed(4)}`} icon="🌐" color="indigo" onClick={() => handleIncomeCardClick('matrix')} txCount={transactionHistory?.matrixIncome.length} />
+                                                <CompactStat label="Royalty" value={`${parseFloat(incomeData.royaltyIncome || '0').toFixed(4)}`} icon="👑" color="yellow" onClick={() => handleIncomeCardClick('royalty')} txCount={transactionHistory?.royaltyIncome.length} />
                                                 <CompactStat label="Team" value={userInfo?.team || '0'} icon="👨‍👩‍👧‍👦" color="teal" />
                                             </div>
                                         </div>
@@ -995,7 +995,7 @@ function TabButton({ label, icon, active, onClick }: any) {
     );
 }
 
-function CompactStat({ label, value, icon, color }: any) {
+function CompactStat({ label, value, icon, color, onClick, txCount }: any) {
     const colors: any = {
         blue: 'from-blue-500 to-cyan-600',
         purple: 'from-purple-500 to-pink-600',
@@ -1005,13 +1005,21 @@ function CompactStat({ label, value, icon, color }: any) {
         teal: 'from-teal-500 to-emerald-600',
     };
 
+    const isClickable = onClick && label !== 'Team';
+
     return (
         <div
-            onClick={() => alert(`${label} Income Details:\nAmount: ${value} BNB\n\nClick to see transaction history (coming soon)`)}
-            className={`bg-gradient-to-r ${colors[color]} rounded-lg p-3 text-center shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+            onClick={isClickable ? onClick : undefined}
+            className={`bg-gradient-to-r ${colors[color]} rounded-lg p-3 text-center shadow-lg ${isClickable ? 'cursor-pointer hover:scale-105 hover:shadow-xl transition-all' : ''
+                }`}
         >
             <p className="text-white/80 text-xs mb-1">{icon} {label}</p>
             <p className="text-white font-extrabold text-lg drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{value}</p>
+            {isClickable && txCount !== undefined && (
+                <p className="text-white/70 text-xs mt-1 animate-pulse">
+                    {txCount} tx{txCount !== 1 ? 's' : ''} • Click
+                </p>
+            )}
         </div>
     );
 }
