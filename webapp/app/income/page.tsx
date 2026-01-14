@@ -103,6 +103,14 @@ export default function Dashboard() {
                     referrer: Number(info.referrer),
                 });
 
+                console.log('User Income from contract:', {
+                    totalDeposit: ethers.formatEther(income.totalDeposit),
+                    totalIncome: ethers.formatEther(income.totalIncome),
+                    referralIncome: ethers.formatEther(income.referralIncome),
+                    sponsorIncome: ethers.formatEther(income.sponsorIncome),
+                    levelIncome: ethers.formatEther(income.levelIncome),
+                });
+
                 setUserInfo({
                     level: Number(info.level),
                     directTeam: Number(info.directTeam),
