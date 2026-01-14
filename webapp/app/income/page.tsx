@@ -7,9 +7,10 @@ import { useWeb3Modal } from '@web3modal/wagmi/react';
 import { useEthersSigner, useEthersProvider } from '@/lib/ethersAdapter';
 import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
-import HierarchicalMatrixView, { getSampleMatrixData } from '@/components/HierarchicalMatrixView';
+import HierarchicalMatrixView, { MatrixLevel, getSampleMatrixData } from '@/components/HierarchicalMatrixView';
 import { fetchBinaryTreeFromContract, getSampleTree } from '@/lib/treeUtils';
-import { fetchMatrixFromContract } from '@/lib/matrixUtils';
+import { fetchQuickMatrix, fetchDirectTeam, type TeamMember } from '@/lib/teamQueries';
+import { fetchRoyaltyData, claimRoyalty, type RoyaltyData } from '@/lib/royaltyQueries';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
