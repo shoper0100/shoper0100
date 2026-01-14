@@ -617,11 +617,12 @@ export default function Dashboard() {
                             <>
                                 {/* Tab Navigation */}
                                 <div className="bg-white/10 backdrop-blur-md rounded-xl mb-4 p-1 border border-white/20">
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-1">
+                                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-1">
                                         <TabButton label="Overview" icon="📊" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
                                         <TabButton label="Upgrade" icon="⬆️" active={activeTab === 'upgrade'} onClick={() => setActiveTab('upgrade')} />
-                                        <TabButton label="Share" icon="🔗" active={activeTab === 'share'} onClick={() => setActiveTab('share')} />
                                         <TabButton label="Team" icon="👥" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />
+                                        <TabButton label="Royalty" icon="👑" active={activeTab === 'royalty'} onClick={() => setActiveTab('royalty')} />
+                                        <TabButton label="Share" icon="🔗" active={activeTab === 'share'} onClick={() => setActiveTab('share')} />
                                     </div>
                                 </div>
 
@@ -763,6 +764,90 @@ export default function Dashboard() {
                                                 <p className="text-white/80">You've completed all 13 levels. Congratulations!</p>
                                             </div>
                                         )}
+                                    </div>
+                                )}
+
+                                {/* Royalty Claim Tab */}
+                                {activeTab === 'royalty' && userInfo && (
+                                    <div className="bg-black/20 backdrop-blur-sm rounded-lg p-6 border border-yellow-400/20">
+                                        <h2 className="text-xl md:text-2xl font-bold text-white mb-4">👑 Royalty Claims</h2>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                            {/* Tier Cards */}
+                                            {[10, 11, 12, 13].map((tier) => {
+                                                const isEligible = userInfo.level >= tier;
+                                                const tierIndex = tier - 10;
+
+                                                return (
+                                                    <div
+                                                        key={tier}
+                                                        className={`rounded-lg p-4 border-2 ${isEligible
+                                                                ? 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-400/50'
+                                                                : 'bg-gray-800/50 border-gray-600/30'
+                                                            }`}
+                                                    >
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <h3 className={`text-lg font-bold ${isEligible ? 'text-yellow-400' : 'text-gray-500'
+                                                                }`}>
+                                                                Level {tier} Royalty
+                                                            </h3>
+                                                            {isEligible ? (
+                                                                <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">
+                                                                    ✓ Eligible
+                                                                </span>
+                                                            ) : (
+                                                                <span className="px-2 py-1 bg-gray-600 text-gray-300 text-xs rounded-full">
+                                                                    🔒 Locked
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {isEligible ? (
+                                                            <div className="space-y-2">
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-gray-300">Pool Share:</span>
+                                                                    <span className="text-white font-semibold">Coming Soon</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-gray-300">Available:</span>
+                                                                    <span className="text-green-400 font-semibold">0.00000 BNB</span>
+                                                                </div>
+                                                                <button
+                                                                    className="w-full mt-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                    disabled={true}
+                                                                >
+                                                                    Claim Royalty
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-center py-4">
+                                                                <p className="text-gray-400 text-sm">
+                                                                    Upgrade to Level {tier} to unlock
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Royalty Pool Info */}
+                                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                                            <h3 className="text-white font-bold mb-3">📊 Royalty Pool Information</h3>
+                                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                                <div>
+                                                    <p className="text-gray-300 mb-1">Total Claimed:</p>
+                                                    <p className="text-yellow-400 font-bold">{parseFloat(incomeData?.royaltyIncome || '0').toFixed(5)} BNB</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-300 mb-1">Pool Funding:</p>
+                                                    <p className="text-white font-bold">5% from all upgrades</p>
+                                                </div>
+                                            </div>
+                                            <p className="text-gray-400 text-xs mt-3">
+                                                💡 Royalty pools are distributed among eligible users at each level tier (L10-L13).
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
 
