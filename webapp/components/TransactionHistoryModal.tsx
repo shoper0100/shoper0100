@@ -105,8 +105,8 @@ export default function TransactionHistoryModal({
                                 key={f}
                                 onClick={() => setFilter(f as any)}
                                 className={`px-4 py-2 rounded-lg font-medium transition ${filter === f
-                                        ? 'bg-yellow-500 text-black'
-                                        : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
+                                    ? 'bg-yellow-500 text-black'
+                                    : 'bg-slate-800 text-gray-400 hover:bg-slate-700'
                                     }`}
                             >
                                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -153,11 +153,6 @@ export default function TransactionHistoryModal({
                                                             From: <span className="text-yellow-400">User #{tx.fromUserId}</span>
                                                         </p>
                                                     )}
-                                                    {tx.level !== undefined && (
-                                                        <p className="text-sm text-gray-400">
-                                                            Level: <span className="text-yellow-400">L{tx.level}</span>
-                                                        </p>
-                                                    )}
                                                     <a
                                                         href={getExplorerUrl(tx.txHash)}
                                                         target="_blank"
@@ -172,7 +167,7 @@ export default function TransactionHistoryModal({
                                             {/* Amount */}
                                             <div className="text-right ml-4">
                                                 <p className="text-xl font-bold text-green-400">
-                                                    +{parseFloat(tx.amount).toFixed(4)} BNB
+                                                    +{parseFloat(tx.amount).toFixed(5)} BNB
                                                 </p>
                                                 <p className="text-sm text-gray-400">
                                                     ≈ ${usdValue}

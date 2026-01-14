@@ -626,11 +626,11 @@ export default function Dashboard() {
                                         <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-4 border border-yellow-400/20">
                                             <p className="text-yellow-200 text-sm font-bold mb-3 drop-shadow-md" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>💰 Income Statistics</p>
                                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                                                <CompactStat label="Total" value={`${parseFloat(incomeData.totalIncome || '0').toFixed(4)}`} icon="📈" color="blue" onClick={() => handleIncomeCardClick('all')} txCount={transactionHistory?.totalTransactions} />
-                                                <CompactStat label="Referral" value={`${parseFloat(incomeData.referralIncome || '0').toFixed(4)}`} icon="👥" color="purple" onClick={() => handleIncomeCardClick('referral')} txCount={transactionHistory?.referralIncome.length} />
-                                                <CompactStat label="Sponsor" value={`${parseFloat(incomeData.sponsorIncome || '0').toFixed(4)}`} icon="🎯" color="orange" onClick={() => handleIncomeCardClick('sponsor')} txCount={transactionHistory?.sponsorIncome.length} />
-                                                <CompactStat label="Matrix" value={`${parseFloat(incomeData.levelIncome || '0').toFixed(4)}`} icon="🌐" color="indigo" onClick={() => handleIncomeCardClick('matrix')} txCount={transactionHistory?.matrixIncome.length} />
-                                                <CompactStat label="Royalty" value={`${parseFloat(incomeData.royaltyIncome || '0').toFixed(4)}`} icon="👑" color="yellow" onClick={() => handleIncomeCardClick('royalty')} txCount={transactionHistory?.royaltyIncome.length} />
+                                                <CompactStat label="Total" value={`${parseFloat(incomeData.totalIncome || '0').toFixed(5)}`} icon="📈" color="blue" onClick={() => handleIncomeCardClick('all')} txCount={transactionHistory?.totalTransactions} />
+                                                <CompactStat label="Referral" value={`${parseFloat(incomeData.referralIncome || '0').toFixed(5)}`} icon="👥" color="purple" onClick={() => handleIncomeCardClick('referral')} txCount={transactionHistory?.referralIncome.length} />
+                                                <CompactStat label="Sponsor" value={`${parseFloat(incomeData.sponsorIncome || '0').toFixed(5)}`} icon="🎯" color="orange" onClick={() => handleIncomeCardClick('sponsor')} txCount={transactionHistory?.sponsorIncome.length} />
+                                                <CompactStat label="Matrix" value={`${parseFloat(incomeData.levelIncome || '0').toFixed(5)}`} icon="🌐" color="indigo" onClick={() => handleIncomeCardClick('matrix')} txCount={transactionHistory?.matrixIncome.length} />
+                                                <CompactStat label="Royalty" value={`${parseFloat(incomeData.royaltyIncome || '0').toFixed(5)}`} icon="👑" color="yellow" onClick={() => handleIncomeCardClick('royalty')} txCount={transactionHistory?.royaltyIncome.length} />
                                                 <CompactStat label="Team" value={userInfo?.team || '0'} icon="👨‍👩‍👧‍👦" color="teal" />
                                             </div>
                                         </div>
@@ -1085,7 +1085,7 @@ function ProgressBar({ label, amount, total, color }: any) {
         <div>
             <div className="flex justify-between text-white text-xs mb-1">
                 <span>{label}</span>
-                <span className="font-bold">{amount.toFixed(4)} BNB</span>
+                <span className="font-bold">{amount.toFixed(5)} BNB</span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
                 <div className={`${colors[color]} h-2 rounded-full transition-all`} style={{ width: `${percentage}%` }}></div>
