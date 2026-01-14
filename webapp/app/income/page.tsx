@@ -237,16 +237,13 @@ export default function Dashboard() {
 
     // Load Transaction History
     const loadTransactionHistory = async () => {
-        if (!provider || !userId || !userAddress) return;
+        if (!ethersProvider || !userId || !userAddress) return;
 
         console.log('📜 Loading transaction history...');
 
         try {
             const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
             const royaltyAddress = process.env.NEXT_PUBLIC_ROYALTY_ADDRESS || CONTRACTS.ROYALTY;
-
-            // Convert Wagmi provider to Ethers provider
-            const ethersProvider = publicClientToProvider(provider);
 
             const history = await fetchUserTransactions(
                 userId,
@@ -264,10 +261,10 @@ export default function Dashboard() {
 
     // Load transaction history when user data is available
     useEffect(() => {
-        if (userId && userAddress && provider && !transactionHistory) {
+        if (userId && userAddress && ethersProvider && !transactionHistory) {
             loadTransactionHistory();
         }
-    }, [userId, userAddress, provider]);
+    }, [userId, userAddress, ethersProvider]);
 
     // Handler for income card clicks
     const handleIncomeCardClick = (type: 'all' | 'referral' | 'sponsor' | 'matrix' | 'royalty') => {
