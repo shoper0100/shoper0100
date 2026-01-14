@@ -1020,6 +1020,15 @@ export default function Dashboard() {
                         </div>
                     )
                 }
+
+                {/* Transaction History Modal */}
+                <TransactionHistoryModal
+                    isOpen={showHistoryModal}
+                    onClose={() => setShowHistoryModal(false)}
+                    history={transactionHistory}
+                    bnbPrice={bnbPrice}
+                    initialFilter={historyFilter}
+                />
             </div >
         </div >
     );
