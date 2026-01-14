@@ -11,6 +11,8 @@ import HierarchicalMatrixView, { MatrixLevel, getSampleMatrixData } from '@/comp
 import { fetchBinaryTreeFromContract, getSampleTree } from '@/lib/treeUtils';
 import { fetchQuickMatrix, fetchDirectTeam, type TeamMember } from '@/lib/teamQueries';
 import { fetchRoyaltyData, claimRoyalty, type RoyaltyData } from '@/lib/royaltyQueries';
+import { fetchUserTransactions, calculateTotalsByType, type IncomeHistory, type Transaction } from '@/lib/transactionQueries';
+import TransactionHistoryModal from '@/components/TransactionHistoryModal';
 
 export default function Dashboard() {
     const [userAddress, setUserAddress] = useState('');
@@ -40,6 +42,11 @@ export default function Dashboard() {
     const [loadingTree, setLoadingTree] = useState(false);
     const [treeData, setTreeData] = useState<any>(null);
     const [matrixData, setMatrixData] = useState<any>(null);
+
+    // Transaction History State
+    const [transactionHistory, setTransactionHistory] = useState<IncomeHistory | null>(null);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [historyFilter, setHistoryFilter] = useState<'all' | 'referral' | 'sponsor' | 'matrix' | 'royalty'>('all');
 
     // Sync Wagmi address to local state and load data
     useEffect(() => {
