@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useAccount, useDisconnect } from 'wagmi';
 import { useWeb3Modal } from '@web3modal/wagmi/react';
-import { useEthersSigner, useEthersProvider } from '@/lib/ethersAdapter';
+import { useEthersSigner, useEthersProvider, publicClientToProvider } from '@/lib/ethersAdapter';
 import { CONTRACTS, MAIN_ABI, ROYALTY_ABI } from '@/lib/contracts';
 import BinaryTreeView from '@/components/BinaryTreeView';
 import HierarchicalMatrixView, { MatrixLevel, getSampleMatrixData } from '@/components/HierarchicalMatrixView';
