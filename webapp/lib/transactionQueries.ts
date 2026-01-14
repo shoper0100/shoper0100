@@ -1,13 +1,12 @@
-// Transaction History Queries - Simple & Fast
+// Transaction History Queries - SIMPLE: Just hash + amount
 import { ethers, Provider } from 'ethers';
-import { MAIN_ABI, ROYALTY_ABI } from './contracts';
+import { MAIN_ABI } from './contracts';
 
 export interface Transaction {
     txHash: string;
-    timestamp: Date;
-    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade' | 'registration';
+    timestamp: Date; // Not fetched, just for UI compatibility
+    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade';
     amount: string;
-    from?: string;
     fromUserId?: number;
     level?: number;
     blockNumber: number;
@@ -23,7 +22,8 @@ export interface IncomeHistory {
 }
 
 /**
- * Fetch user's transaction history - SIMPLE VERSION (last 5000 blocks only)
+ * Fetch user's transaction history - SIMPLE VERSION
+ * Only fetches txHash + amount (no timestamps from blocks)
  */
 export async function fetchUserTransactions(
     userId: number,
@@ -46,10 +46,10 @@ export async function fetchUserTransactions(
 
     try {
         const currentBlock = await provider.getBlockNumber();
-        // SIMPLE: Only last 5000 blocks (~4 hours) - fast, no rate limits
-        const fromBlock = Math.max(0, currentBlock - 5000);
+        // Query last 50,000 blocks (~18 hours on BSC)
+        const fromBlock = Math.max(0, currentBlock - 50000);
 
-        console.log(`   Querying last 5000 blocks (${fromBlock} → ${currentBlock})`);
+        console.log(`   Querying last 50,000 blocks (${fromBlock} → ${currentBlock})`);
 
         // 1. Referral Income
         try {
@@ -57,10 +57,9 @@ export async function fetchUserTransactions(
             const referralEvents = await mainContract.queryFilter(referralFilter, fromBlock, currentBlock);
 
             for (const event of referralEvents) {
-                const block = await provider.getBlock(event.blockNumber);
                 history.referralIncome.push({
                     txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
+                    timestamp: new Date(), // Placeholder - view on BSCScan for exact time
                     type: 'referral',
                     amount: ethers.formatEther(event.args!.amount),
                     fromUserId: Number(event.args!.userId),
@@ -69,7 +68,7 @@ export async function fetchUserTransactions(
             }
             console.log(`   ✓ ${referralEvents.length} referral payments`);
         } catch (e) {
-            console.warn('   Failed to fetch referral events:', e);
+            console.warn('   ⚠ Failed to fetch referral events:', e);
         }
 
         // 2. Sponsor Income
@@ -78,10 +77,9 @@ export async function fetchUserTransactions(
             const sponsorEvents = await mainContract.queryFilter(sponsorFilter, fromBlock, currentBlock);
 
             for (const event of sponsorEvents) {
-                const block = await provider.getBlock(event.blockNumber);
                 history.sponsorIncome.push({
                     txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
+                    timestamp: new Date(), // Placeholder
                     type: 'sponsor',
                     amount: ethers.formatEther(event.args!.amount),
                     fromUserId: Number(event.args!.fromUserId),
@@ -91,7 +89,7 @@ export async function fetchUserTransactions(
             }
             console.log(`   ✓ ${sponsorEvents.length} sponsor commissions`);
         } catch (e) {
-            console.warn('   Failed to fetch sponsor events:', e);
+            console.warn('   ⚠ Failed to fetch sponsor events:', e);
         }
 
         // 3. Matrix Income (deduplicated by txHash)
@@ -105,16 +103,16 @@ export async function fetchUserTransactions(
                 const txHash = event.transactionHash;
 
                 if (!matrixByTx.has(txHash)) {
-                    const block = await provider.getBlock(event.blockNumber);
                     matrixByTx.set(txHash, {
                         txHash: txHash,
-                        timestamp: new Date(block!.timestamp * 1000),
+                        timestamp: new Date(), // Placeholder
                         type: 'matrix',
                         amount: ethers.formatEther(event.args!.amount),
                         level: Number(event.args!.level),
                         blockNumber: event.blockNumber
                     });
                 } else {
+                    // Sum amounts from same transaction (multiple layers)
                     const existing = matrixByTx.get(txHash)!;
                     const currentAmount = parseFloat(existing.amount);
                     const newAmount = parseFloat(ethers.formatEther(event.args!.amount));
@@ -125,21 +123,20 @@ export async function fetchUserTransactions(
             history.matrixIncome = Array.from(matrixByTx.values());
             console.log(`   ✓ ${history.matrixIncome.length} matrix transactions (${matrixEvents.length} events)`);
         } catch (e) {
-            console.warn('   Failed to fetch matrix events:', e);
+            console.warn('   ⚠ Failed to fetch matrix events:', e);
         }
 
         // Calculate total
         history.totalTransactions =
             history.referralIncome.length +
             history.sponsorIncome.length +
-            history.matrixIncome.length +
-            history.royaltyIncome.length +
-            history.upgrades.length;
+            history.matrixIncome.length;
 
-        console.log(`✅ Loaded ${history.totalTransactions} transactions (last 4 hours)`);
+        console.log(`✅ Loaded ${history.totalTransactions} transactions (last 18 hours)`);
         console.log(`   - Referral: ${history.referralIncome.length}`);
         console.log(`   - Sponsor: ${history.sponsorIncome.length}`);
         console.log(`   - Matrix: ${history.matrixIncome.length}`);
+        console.log(`   💡 Click transaction hash to view details on BSCScan`);
 
     } catch (error) {
         console.error('Failed to fetch transaction history:', error);
@@ -149,7 +146,7 @@ export async function fetchUserTransactions(
 }
 
 /**
- * Get all transactions sorted by timestamp
+ * Get all transactions sorted by block number (newest first)
  */
 export function getAllTransactionsSorted(history: IncomeHistory): Transaction[] {
     const allTransactions: Transaction[] = [
@@ -160,5 +157,6 @@ export function getAllTransactionsSorted(history: IncomeHistory): Transaction[] 
         ...history.upgrades
     ];
 
-    return allTransactions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    // Sort by block number instead of timestamp
+    return allTransactions.sort((a, b) => b.blockNumber - a.blockNumber);
 }
