@@ -227,6 +227,45 @@ export default function Dashboard() {
         }
     };
 
+    // Load Transaction History
+    const loadTransactionHistory = async () => {
+        if (!provider || !userId || !userAddress) return;
+
+        console.log('📜 Loading transaction history...');
+
+        try {
+            const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
+            const royaltyAddress = process.env.NEXT_PUBLIC_ROYALTY_ADDRESS || CONTRACTS.ROYALTY;
+
+            const history = await fetchUserTransactions(
+                userId,
+                userAddress,
+                provider,
+                contractAddress,
+                royaltyAddress
+            );
+
+            setTransactionHistory(history);
+            console.log(`✅ Transaction history loaded: ${history.totalTransactions} total`);
+        } catch (error) {
+            console.error('❌ Error loading transaction history:', error);
+        }
+    };
+
+    // Load transaction history when user data is available
+    useEffect(() => {
+        if (userId && userAddress && provider && !transactionHistory) {
+            loadTransactionHistory();
+        }
+    }, [userId, userAddress, provider]);
+
+    // Handler for income card clicks
+    const handleIncomeCardClick = (type: 'all' | 'referral' | 'sponsor' | 'matrix' | 'royalty') => {
+        setHistoryFilter(type);
+        setShowHistoryModal(true);
+    };
+
+
     const buildBinaryTree = () => {
         // Create binary tree structure for 13 levels
         const tree: any = { level: 1, filled: true, userId: userId, children: [] };
