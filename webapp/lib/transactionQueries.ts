@@ -77,26 +77,41 @@ export async function fetchUserTransactions(
             console.warn('   Failed to fetch referral events:', e);
         }
 
-        // 2. Sponsor Income
+        // 2. Sponsor Income (CHUNKED - sponsor events have many results)
         try {
             // Event: SponsorCommissionPaid(uint indexed sponsorId, uint indexed fromUserId, uint amount, uint level, uint timestamp)
-            const sponsorFilter = mainContract.filters.SponsorCommissionPaid(userId);
-            const sponsorEvents = await mainContract.queryFilter(sponsorFilter, fromBlock, currentBlock);
+            console.log('   Fetching sponsor commissions in chunks...');
 
-            console.log(`   Found ${sponsorEvents.length} sponsor commissions`);
+            const CHUNK_SIZE = 1000; // RPC limit
+            const totalBlocks = currentBlock - fromBlock;
+            const chunks = Math.ceil(totalBlocks / CHUNK_SIZE);
 
-            for (const event of sponsorEvents) {
-                const block = await provider.getBlock(event.blockNumber);
-                history.sponsorIncome.push({
-                    txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
-                    type: 'sponsor',
-                    amount: ethers.formatEther(event.args!.amount),
-                    fromUserId: Number(event.args!.fromUserId),
-                    level: Number(event.args!.level),
-                    blockNumber: event.blockNumber
-                });
+            for (let i = 0; i < chunks; i++) {
+                const chunkStart = fromBlock + (i * CHUNK_SIZE);
+                const chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, currentBlock);
+
+                const sponsorFilter = mainContract.filters.SponsorCommissionPaid(userId);
+                const sponsorEvents = await mainContract.queryFilter(sponsorFilter, chunkStart, chunkEnd);
+
+                for (const event of sponsorEvents) {
+                    const block = await provider.getBlock(event.blockNumber);
+                    history.sponsorIncome.push({
+                        txHash: event.transactionHash,
+                        timestamp: new Date(block!.timestamp * 1000),
+                        type: 'sponsor',
+                        amount: ethers.formatEther(event.args!.amount),
+                        fromUserId: Number(event.args!.fromUserId),
+                        level: Number(event.args!.level),
+                        blockNumber: event.blockNumber
+                    });
+                }
+
+                if (i % 100 === 0 && i > 0) {
+                    console.log(`   Progress: chunk ${i}/${chunks} (${Math.round(i / chunks * 100)}%)`);
+                }
             }
+
+            console.log(`   Found ${history.sponsorIncome.length} sponsor commissions`);
         } catch (e) {
             console.warn('   Failed to fetch sponsor events:', e);
         }
