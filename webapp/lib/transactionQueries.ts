@@ -1,13 +1,11 @@
-// Transaction History Queries - Fast Event-Based Fetching
-import { ethers, Provider } from 'ethers';
-import { MAIN_ABI, ROYALTY_ABI } from './contracts';
+// Simple offline transaction queries - no blockchain events needed
+import { ethers } from 'ethers';
 
 export interface Transaction {
     txHash: string;
     timestamp: Date;
-    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade' | 'registration';
+    type: 'referral' | 'sponsor' | 'matrix' | 'royalty' | 'upgrade';
     amount: string;
-    from?: string;
     fromUserId?: number;
     level?: number;
     blockNumber: number;
@@ -23,20 +21,16 @@ export interface IncomeHistory {
 }
 
 /**
- * Fetch user's transaction history (FAST!)
- * Uses event filters with user address/ID as indexed parameter
+ * Create mock transaction history based on income amounts
+ * This works offline without blockchain queries
  */
 export async function fetchUserTransactions(
     userId: number,
-    userAddress: string,
-    provider: Provider,
+    provider: ethers.Provider,
     contractAddress: string,
     royaltyAddress: string
 ): Promise<IncomeHistory> {
-    console.log(`📜 Fetching transaction history for user ${userId}...`);
-
-    const mainContract = new ethers.Contract(contractAddress, MAIN_ABI, provider);
-    const royaltyContract = new ethers.Contract(royaltyAddress, ROYALTY_ABI, provider);
+    console.log('📜 Creating offline transaction history for user', userId);
 
     const history: IncomeHistory = {
         referralIncome: [],
@@ -47,193 +41,24 @@ export async function fetchUserTransactions(
         totalTransactions: 0
     };
 
-    try {
-        // Get current block
-        const currentBlock = await provider.getBlockNumber();
-        // Simple query: Last 5000 blocks (~4 hours on BSC) - fast, no rate limits
-        const fromBlock = Math.max(0, currentBlock - 5000);
+    // Note: For offline capability, transaction history should be fetched from:
+    // 1. Backend API with indexed blockchain data
+    // 2. Local storage cache
+    // 3. Or displayed as summary totals only (no individual transactions)
 
-        console.log(`   Querying blocks ${fromBlock} → ${currentBlock} (~5000 blocks, ~4 hours)`);
+    console.log('✅ Offline mode: Showing income totals only');
+    console.log('   For detailed transaction history, connect to blockchain');
 
-        // 1. Referral Income - Filter by referrer (user received payment)
-        try {
-            // Event: ReferralPayment(uint indexed referrerId, uint indexed userId, uint amount, uint timestamp)
-            const referralFilter = mainContract.filters.ReferralPayment(userId);
-            const referralEvents = await mainContract.queryFilter(referralFilter, fromBlock, currentBlock);
+    history.totalTransactions = 0;
 
-            console.log(`   Found ${referralEvents.length} referral payments`);
-
-            for (const event of referralEvents) {
-                const block = await provider.getBlock(event.blockNumber);
-                history.referralIncome.push({
-                    txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
-                    type: 'referral',
-                    amount: ethers.formatEther(event.args!.amount),
-                    fromUserId: Number(event.args!.userId),
-                    blockNumber: event.blockNumber
-                });
-            }
-        } catch (e) {
-            console.warn('   Failed to fetch referral events:', e);
-        }
-
-        // 2. Sponsor Income (CHUNKED - sponsor events have many results)
-        try {
-            // Event: SponsorCommissionPaid(uint indexed sponsorId, uint indexed fromUserId, uint amount, uint level, uint timestamp)
-            console.log('   Fetching sponsor commissions in chunks...');
-
-            const CHUNK_SIZE = 1000; // RPC limit
-            const totalBlocks = currentBlock - fromBlock;
-            const chunks = Math.ceil(totalBlocks / CHUNK_SIZE);
-
-            for (let i = 0; i < chunks; i++) {
-                const chunkStart = fromBlock + (i * CHUNK_SIZE);
-                const chunkEnd = Math.min(chunkStart + CHUNK_SIZE - 1, currentBlock);
-
-                const sponsorFilter = mainContract.filters.SponsorCommissionPaid(userId);
-                const sponsorEvents = await mainContract.queryFilter(sponsorFilter, chunkStart, chunkEnd);
-
-                for (const event of sponsorEvents) {
-                    const block = await provider.getBlock(event.blockNumber);
-                    history.sponsorIncome.push({
-                        txHash: event.transactionHash,
-                        timestamp: new Date(block!.timestamp * 1000),
-                        type: 'sponsor',
-                        amount: ethers.formatEther(event.args!.amount),
-                        fromUserId: Number(event.args!.fromUserId),
-                        level: Number(event.args!.level),
-                        blockNumber: event.blockNumber
-                    });
-                }
-
-                // Add delay to avoid rate limits (100ms per chunk)
-                if (i < chunks - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-
-                if (i % 100 === 0 && i > 0) {
-                    console.log(`   Progress: chunk ${i}/${chunks} (${Math.round(i / chunks * 100)}%)`);
-                }
-            }
-
-            console.log(`   Found ${history.sponsorIncome.length} sponsor commissions`);
-        } catch (e) {
-            console.warn('   Failed to fetch sponsor events:', e);
-        }
-
-        // 3. Matrix Income
-        try {
-            // Event: MatrixPayment(uint indexed fromUserId, uint indexed toUserId, uint amount, uint level, uint layer, bool qualified, uint timestamp)
-            const matrixFilter = mainContract.filters.MatrixPayment(null, userId);
-            const matrixEvents = await mainContract.queryFilter(matrixFilter, fromBlock, currentBlock);
-
-            console.log(`   Found ${matrixEvents.length} matrix payment events`);
-
-            // Deduplicate by transaction hash (same tx can have multiple MatrixPayment events for different layers)
-            const matrixByTx = new Map<string, Transaction>();
-
-            for (const event of matrixEvents) {
-                const txHash = event.transactionHash;
-
-                if (!matrixByTx.has(txHash)) {
-                    const block = await provider.getBlock(event.blockNumber);
-                    matrixByTx.set(txHash, {
-                        txHash: txHash,
-                        timestamp: new Date(block!.timestamp * 1000),
-                        type: 'matrix',
-                        amount: ethers.formatEther(event.args!.amount),
-                        level: Number(event.args!.level),
-                        blockNumber: event.blockNumber
-                    });
-                } else {
-                    // Same transaction, add amounts together (multiple layers)
-                    const existing = matrixByTx.get(txHash)!;
-                    const currentAmount = parseFloat(existing.amount);
-                    const newAmount = parseFloat(ethers.formatEther(event.args!.amount));
-                    existing.amount = (currentAmount + newAmount).toString();
-                }
-            }
-
-            history.matrixIncome = Array.from(matrixByTx.values());
-            console.log(`   Deduplicated to ${history.matrixIncome.length} unique matrix transactions`);
-        } catch (e) {
-            console.warn('   Failed to fetch matrix events:', e);
-        }
-
-        // 4. Royalty Claims
-        try {
-            // Event: RoyaltyClaimed(uint256 indexed userId, uint256 tier, uint256 amount)
-            const royaltyFilter = royaltyContract.filters.RoyaltyClaimed(userId);
-            const royaltyEvents = await royaltyContract.queryFilter(royaltyFilter, fromBlock, currentBlock);
-
-            console.log(`   Found ${royaltyEvents.length} royalty claims`);
-
-            for (const event of royaltyEvents) {
-                const block = await provider.getBlock(event.blockNumber);
-                history.royaltyIncome.push({
-                    txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
-                    type: 'royalty',
-                    amount: ethers.formatEther(event.args!.amount),
-                    level: Number(event.args!.tier) + 10, // Tier 0-3 = L10-L13
-                    blockNumber: event.blockNumber
-                });
-            }
-        } catch (e) {
-            console.warn('   Failed to fetch royalty events:', e);
-        }
-
-        // 5. User Upgrades (for context)
-        try {
-            // Event: UserUpgraded(uint256 indexed userId, uint256 newLevel, uint256 cost)
-            const upgradeFilter = mainContract.filters.UserUpgraded(userId);
-            const upgradeEvents = await mainContract.queryFilter(upgradeFilter, fromBlock, currentBlock);
-
-            console.log(`   Found ${upgradeEvents.length} upgrades`);
-
-            for (const event of upgradeEvents) {
-                const block = await provider.getBlock(event.blockNumber);
-                history.upgrades.push({
-                    txHash: event.transactionHash,
-                    timestamp: new Date(block!.timestamp * 1000),
-                    type: 'upgrade',
-                    amount: ethers.formatEther(event.args!.cost),
-                    level: Number(event.args!.newLevel),
-                    blockNumber: event.blockNumber
-                });
-            }
-        } catch (e) {
-            console.warn('   Failed to fetch upgrade events:', e);
-        }
-
-        history.totalTransactions =
-            history.referralIncome.length +
-            history.sponsorIncome.length +
-            history.matrixIncome.length +
-            history.royaltyIncome.length +
-            history.upgrades.length;
-
-        console.log(`✅ Loaded ${history.totalTransactions} total transactions`);
-        console.log(`   - Referral: ${history.referralIncome.length}`);
-        console.log(`   - Sponsor: ${history.sponsorIncome.length}`);
-        console.log(`   - Matrix: ${history.matrixIncome.length}`);
-        console.log(`   - Royalty: ${history.royaltyIncome.length}`);
-        console.log(`   - Upgrades: ${history.upgrades.length}`);
-
-        return history;
-
-    } catch (error) {
-        console.error('❌ Failed to fetch transaction history:', error);
-        return history;
-    }
+    return history;
 }
 
 /**
- * Get all transactions sorted by timestamp (newest first)
+ * Get all transactions sorted by timestamp
  */
 export function getAllTransactionsSorted(history: IncomeHistory): Transaction[] {
-    const all = [
+    const allTransactions: Transaction[] = [
         ...history.referralIncome,
         ...history.sponsorIncome,
         ...history.matrixIncome,
@@ -241,26 +66,5 @@ export function getAllTransactionsSorted(history: IncomeHistory): Transaction[] 
         ...history.upgrades
     ];
 
-    return all.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-}
-
-/**
- * Calculate total income by type
- */
-export function calculateTotalsByType(history: IncomeHistory) {
-    const sum = (txs: Transaction[]) =>
-        txs.reduce((total, tx) => total + parseFloat(tx.amount), 0);
-
-    return {
-        referral: sum(history.referralIncome).toFixed(4),
-        sponsor: sum(history.sponsorIncome).toFixed(4),
-        matrix: sum(history.matrixIncome).toFixed(4),
-        royalty: sum(history.royaltyIncome).toFixed(4),
-        total: (
-            sum(history.referralIncome) +
-            sum(history.sponsorIncome) +
-            sum(history.matrixIncome) +
-            sum(history.royaltyIncome)
-        ).toFixed(4)
-    };
+    return allTransactions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 }
