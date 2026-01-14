@@ -50,9 +50,9 @@ export async function fetchUserTransactions(
     try {
         // Get current block
         const currentBlock = await provider.getBlockNumber();
-        const fromBlock = Math.max(0, currentBlock - 10000000); // Last ~1 month on BSC
+        const fromBlock = Math.max(0, currentBlock - 2000000); // Last ~6 days on BSC (balance speed vs rate limits)
 
-        console.log(`   Querying blocks ${fromBlock} → ${currentBlock} (~10M blocks, ~1 month)`);
+        console.log(`   Querying blocks ${fromBlock} → ${currentBlock} (~2M blocks, ~6 days)`);
 
         // 1. Referral Income - Filter by referrer (user received payment)
         try {
