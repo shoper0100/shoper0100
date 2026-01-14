@@ -22,7 +22,7 @@ export default function Dashboard() {
     const { open } = useWeb3Modal();
     const { disconnect } = useDisconnect();
     const signer = useEthersSigner();
-    const provider = useEthersProvider();
+    const ethersProvider = useEthersProvider();
 
     const [userId, setUserId] = useState(0);
     const [balance, setBalance] = useState('0');
