@@ -79,7 +79,7 @@ export async function fetchUserTransactions(
 
         // 2. Sponsor Income
         try {
-            // Event: SponsorCommissionPaid(uint256 indexed userId, uint256 amount, uint256 fromUserId, uint8 layer)
+            // Event: SponsorCommissionPaid(uint indexed sponsorId, uint indexed fromUserId, uint amount, uint level, uint timestamp)
             const sponsorFilter = mainContract.filters.SponsorCommissionPaid(userId);
             const sponsorEvents = await mainContract.queryFilter(sponsorFilter, fromBlock, currentBlock);
 
@@ -93,7 +93,7 @@ export async function fetchUserTransactions(
                     type: 'sponsor',
                     amount: ethers.formatEther(event.args!.amount),
                     fromUserId: Number(event.args!.fromUserId),
-                    level: Number(event.args!.layer),
+                    level: Number(event.args!.level),
                     blockNumber: event.blockNumber
                 });
             }
