@@ -56,8 +56,8 @@ export async function fetchUserTransactions(
 
         // 1. Referral Income - Filter by referrer (user received payment)
         try {
-            // Event: ReferralPaid(uint256 indexed userId, uint256 amount, uint256 indexed referrerId)
-            const referralFilter = mainContract.filters.ReferralPaid(null, null, userId);
+            // Event: ReferralPayment(uint indexed referrerId, uint indexed userId, uint amount, uint timestamp)
+            const referralFilter = mainContract.filters.ReferralPayment(userId);
             const referralEvents = await mainContract.queryFilter(referralFilter, fromBlock, currentBlock);
 
             console.log(`   Found ${referralEvents.length} referral payments`);
@@ -103,8 +103,8 @@ export async function fetchUserTransactions(
 
         // 3. Matrix Income
         try {
-            // Event: MatrixIncomePaid(uint256 indexed userId, uint256 amount, uint256 level)
-            const matrixFilter = mainContract.filters.MatrixIncomePaid(userId);
+            // Event: MatrixPayment(uint indexed fromUserId, uint indexed toUserId, uint amount, uint level, uint layer, bool qualified, uint timestamp)
+            const matrixFilter = mainContract.filters.MatrixPayment(null, userId);
             const matrixEvents = await mainContract.queryFilter(matrixFilter, fromBlock, currentBlock);
 
             console.log(`   Found ${matrixEvents.length} matrix payments`);
