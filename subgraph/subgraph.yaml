@@ -1,0 +1,33 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: FiveDollarBNB
+    network: bsc
+    source:
+      address: "0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44"
+      abi: FiveDollarBNB
+      startBlock: 43000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Transaction
+      abis:
+        - name: FiveDollarBNB
+          file: ./abis/FiveDollarBNB.json
+      eventHandlers:
+        - event: UserRegistered(indexed uint256,indexed address,indexed uint256,uint256)
+          handler: handleUserRegistered
+        - event: ReferralPayment(indexed uint256,indexed uint256,uint256,uint256)
+          handler: handleReferralPayment
+        - event: SponsorCommissionPaid(indexed uint256,indexed uint256,uint256,uint256,uint256)
+          handler: handleSponsorCommission
+        - event: MatrixPayment(indexed uint256,indexed uint256,uint256,uint256,uint256,bool,uint256)
+          handler: handleMatrixPayment
+        - event: UserUpgraded(indexed uint256,uint256,uint256,uint256)
+          handler: handleUserUpgraded
+      file: ./src/mapping.ts

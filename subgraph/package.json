@@ -1,0 +1,17 @@
+{
+    "name": "fivebnb-subgraph",
+    "version": "0.1.0",
+    "description": "The Graph subgraph for FiveDollarBNB transaction indexing",
+    "scripts": {
+        "codegen": "graph codegen",
+        "build": "graph build",
+        "deploy": "graph deploy --studio fivebnb-transactions",
+        "create-local": "graph create --node http://localhost:8020/ fivebnb-transactions",
+        "remove-local": "graph remove --node http://localhost:8020/ fivebnb-transactions",
+        "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 fivebnb-transactions"
+    },
+    "dependencies": {
+        "@graphprotocol/graph-cli": "0.56.0",
+        "@graphprotocol/graph-ts": "0.31.0"
+    }
+}

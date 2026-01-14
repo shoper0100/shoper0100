@@ -1,0 +1,35 @@
+type User @entity {
+  id: ID!                      # User ID as string
+  address: Bytes!              # Wallet address
+  referrerId: BigInt!          # Referrer user ID
+  level: Int!                  # Current level
+  totalIncome: BigDecimal!     # Total income earned
+  referralIncome: BigDecimal!  # Referral income
+  sponsorIncome: BigDecimal!   # Sponsor commission income
+  matrixIncome: BigDecimal!    # Matrix income
+  royaltyIncome: BigDecimal!   # Royalty income
+  registeredAt: BigInt!        # Registration timestamp
+  transactions: [Transaction!]! @derivedFrom(field: "user")
+  transactionCount: Int!       # Total transaction count
+}
+
+type Transaction @entity {
+  id: ID!                      # txHash-logIndex
+  txHash: Bytes!               # Transaction hash
+  blockNumber: BigInt!         # Block number
+  timestamp: BigInt!           # Block timestamp
+  type: TransactionType!       # Transaction type
+  user: User!                  # User who received payment
+  amount: BigDecimal!          # Amount in BNB
+  fromUserId: BigInt           # Source user ID (for referral/sponsor/matrix)
+  level: Int                   # Level (for sponsor/matrix)
+}
+
+enum TransactionType {
+  REGISTRATION
+  REFERRAL
+  SPONSOR
+  MATRIX
+  ROYALTY
+  UPGRADE
+}
