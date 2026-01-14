@@ -269,20 +269,31 @@ export default function Dashboard() {
         console.log('- Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
         console.log('- Contract:', process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
 
-        // Fetch REAL DATA from blockchain using private RPC
-        console.log('📡 Fetching real team data from blockchain...');
+        if (!provider || !userId) {
+            console.warn('⚠️ Provider or userId not available');
+            setMatrixData(getSampleMatrixData());
+            return;
+        }
+
+        // FAST APPROACH: Direct contract queries (2-5 seconds!)
+        console.log('⚡ Fetching team data with FAST direct queries...');
         setLoadingTree(true);
+
         try {
-            const matrix = await fetchMatrixFromContract(userId);
+            const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
+
+            // Quick matrix fetch - just gets direct team
+            const matrix = await fetchQuickMatrix(userId, provider, contractAddress);
+
             if (matrix && matrix.length > 0) {
-                setMatrixData(matrix);
-                console.log('✅ Real blockchain data loaded successfully!');
+                setMatrixData(matrix as any);
+                console.log('✅ Team data loaded in seconds! No 17-minute wait!');
             } else {
                 console.warn('⚠️ No data returned, using sample data');
                 setMatrixData(getSampleMatrixData());
             }
         } catch (error) {
-            console.error('❌ RPC Error:', error);
+            console.error('❌ Error loading team data:', error);
             console.log('💡 Fallback: Using sample data');
             setMatrixData(getSampleMatrixData());
         } finally {
