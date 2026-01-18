@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Graph Node
+  postgres:
+    image: postgres:14-alpine
+    container_name: ridebnb-postgres
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: ridebnb-secure-password-2024
+      POSTGRES_DB: graph-node
+      LC_ALL: C
+      LANG: C
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U graph-node" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ridebnb-network
+
+  # IPFS for Graph Node
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ridebnb-ipfs
+    restart: unless-stopped
+    ports:
+      - "5001:5001" # API
+      - "4001:4001" # Gateway
+      - "8080:8080" # Gateway HTTP
+    volumes:
+      - ipfs-data:/data/ipfs
+    environment:
+      - IPFS_PROFILE=server
+    networks:
+      - ridebnb-network
+    healthcheck:
+      test: [ "CMD-SHELL", "ipfs id || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Graph Node
+  graph-node:
+    image: graphprotocol/graph-node:latest
+    container_name: ridebnb-graph-node
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ipfs:
+        condition: service_healthy
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: ridebnb-secure-password-2024
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      # Update this with your BSC node URL (can be external if BSC node runs separately)
+      ethereum: 'bsc:${BSC_RPC_URL:-http://86.107.77.113:8545}'
+      GRAPH_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 'true'
+      ETHEREUM_REORG_THRESHOLD: 50
+      ETHEREUM_POLLING_INTERVAL: 1000
+    ports:
+      - "8000:8000" # GraphQL HTTP
+      - "8001:8001" # GraphQL WebSocket
+      - "8020:8020" # JSON-RPC admin
+      - "8030:8030" # Subgraph indexing status
+      - "8040:8040" # Metrics
+    networks:
+      - ridebnb-network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:8000/ || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres-data:
+    driver: local
+  ipfs-data:
+    driver: local
+
+networks:
+  ridebnb-network:
+    driver: bridge

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useAccount, useDisconnect } from 'wagmi';
@@ -50,7 +52,7 @@ export default function Dashboard() {
 
     // Sync Wagmi address to local state and load data
     useEffect(() => {
-        if (isConnected && address && provider) {
+        if (isConnected && address && ethersProvider) {
             setUserAddress(address);
             loadUserData(address);
             loadBalance(address);
@@ -60,7 +62,7 @@ export default function Dashboard() {
             setIncomeData(null);
             setUserInfo(null);
         }
-    }, [address, isConnected, provider]);
+    }, [address, isConnected, ethersProvider]);
 
     const connectWallet = async () => {
         await open();
@@ -73,7 +75,7 @@ export default function Dashboard() {
     const loadBalance = async (address: string) => {
         if (!ethersProvider) return;
         try {
-            const bal = await provider.getBalance(address);
+            const bal = await ethersProvider.getBalance(address);
             setBalance(ethers.formatEther(bal));
         } catch (error) {
             console.error('Failed to load balance:', error);
@@ -84,7 +86,11 @@ export default function Dashboard() {
         if (!ethersProvider) return;
         setLoading(true);
         try {
-            const contract = new ethers.Contract(, , ethersProvider);
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                CONTRACT_ABI,
+                ethersProvider
+            );
 
             const id = await contract.id(address);
             const userIdNum = Number(id);
@@ -149,7 +155,11 @@ export default function Dashboard() {
     const loadRoyaltyIncome = async (userId: number) => {
         if (!ethersProvider) return;
         try {
-            const royaltyContract = new ethers.Contract(, , ethersProvider);
+            const royaltyContract = new ethers.Contract(
+                CONTRACTS.ROYALTY,
+                ROYALTY_ABI,
+                ethersProvider
+            );
 
             let totalRoyalty = 0;
             for (let tier = 0; tier < 4; tier++) {
@@ -169,7 +179,11 @@ export default function Dashboard() {
         if (!ethersProvider) return;
         setLoadingTeam(true);
         try {
-            const contract = new ethers.Contract(, , ethersProvider);
+            const contract = new ethers.Contract(
+                CONTRACTS.MAIN,
+                MAIN_ABI,
+                ethersProvider
+            );
 
             const teamList: any[] = [];
             const userDetails = await contract.userInfo(userId);
@@ -207,7 +221,11 @@ export default function Dashboard() {
     const loadBnbPrice = async () => {
         if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(, , ethersProvider);
+            const contract = new ethers.Contract(
+                CONTRACTS.MAIN,
+                MAIN_ABI,
+                ethersProvider
+            );
             const price = await contract.bnbPrice();
             const priceUsd = Number(ethers.formatEther(price));
             console.log(`BNB Price: $${priceUsd}`);
@@ -221,7 +239,11 @@ export default function Dashboard() {
     const loadLevelCosts = async () => {
         if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(, , ethersProvider);
+            const contract = new ethers.Contract(
+                CONTRACTS.MAIN,
+                MAIN_ABI,
+                ethersProvider
+            );
             const costs: string[] = [];
             // Levels 0-12 (representing L1-L13 costs)
             for (let i = 0; i < 13; i++) {
@@ -458,7 +480,11 @@ export default function Dashboard() {
     const calculateUpgradeCost = async (currentLevel: number, levels: number) => {
         if (!ethersProvider) return;
         try {
-            const contract = new ethers.Contract(, , ethersProvider);
+            const contract = new ethers.Contract(
+                CONTRACTS.MAIN,
+                MAIN_ABI,
+                ethersProvider
+            );
 
             let totalCost = BigInt(0);
             for (let i = 0; i < levels; i++) {

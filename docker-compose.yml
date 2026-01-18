@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Graph Node
+  postgres:
+    image: postgres:14-alpine
+    container_name: ridebnb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-let-me-in}
+      POSTGRES_DB: graph-node
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U graph-node"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ridebnb-network
+
+  # IPFS for Graph Node
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ridebnb-ipfs
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+      - "4001:4001"
+    volumes:
+      - ipfs-data:/data/ipfs
+    networks:
+      - ridebnb-network
+
+  # BSC RPC Node (Geth)
+  bsc-node:
+    image: ethereum/client-go:stable
+    container_name: ridebnb-bsc-node
+    restart: unless-stopped
+    command:
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.vhosts=*
+      - --http.corsdomain=*
+      - --http.api=eth,net,web3,txpool
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.origins=*
+      - --ws.api=eth,net,web3,txpool
+      - --datadir=/data
+      - --syncmode=snap
+      - --cache=8192
+      - --maxpeers=50
+      - --bootnodes=enode://f3cfd69f2808ef64838abd8786342c0b22fdd28268703c8d6812e26e109f9a7a3c3e8d3e8f6e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e@52.76.96.212:30311,enode://f3a6d5b8f65c1c8e6e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e8e@34.230.99.111:30311
+      - --networkid=56
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+      - "30303:30303/udp"
+    volumes:
+      - bsc-data:/data
+    networks:
+      - ridebnb-network
+    healthcheck:
+      test: ["CMD-SHELL", "geth attach --exec eth.blockNumber http://localhost:8545"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Graph Node
+  graph-node:
+    image: graphprotocol/graph-node:latest
+    container_name: ridebnb-graph-node
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ipfs:
+        condition: service_started
+      bsc-node:
+        condition: service_healthy
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: ${POSTGRES_PASSWORD:-let-me-in}
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'bsc:http://bsc-node:8545'
+      GRAPH_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 'true'
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8020:8020"
+      - "8030:8030"
+      - "8040:8040"
+    networks:
+      - ridebnb-network
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    container_name: ridebnb-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_CONTRACT_ADDRESS=${CONTRACT_ADDRESS}
+      - NEXT_PUBLIC_DEFAULT_REFER=${DEFAULT_REFER:-36999}
+      - NEXT_PUBLIC_SUBGRAPH_URL=http://graph-node:8000/subgraphs/name/ridebnb
+      - NEXT_PUBLIC_BSC_RPC=http://bsc-node:8545
+    ports:
+      - "3000:3000"
+    depends_on:
+      - graph-node
+      - bsc-node
+    networks:
+      - ridebnb-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: ridebnb-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - graph-node
+      - bsc-node
+    networks:
+      - ridebnb-network
+
+volumes:
+  postgres-data:
+    driver: local
+  ipfs-data:
+    driver: local
+  bsc-data:
+    driver: local
+
+networks:
+  ridebnb-network:
+    driver: bridge

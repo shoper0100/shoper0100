@@ -1,4 +1,4 @@
-import { BigInt, BigDecimal } from "@graphprotocol/graph-ts"
+import { BigInt, BigDecimal, Bytes } from "@graphprotocol/graph-ts"
 import {
     UserRegistered,
     ReferralPayment,
@@ -11,38 +11,20 @@ import { User, Transaction } from "../generated/schema"
 const ZERO_BD = BigDecimal.fromString("0")
 const ONE_ETHER = BigDecimal.fromString("1000000000000000000")
 
-function getOrCreateUser(userId: BigInt): User {
-    let user = User.load(userId.toString())
-    if (!user) {
-        user = new User(userId.toString())
-        user.address = BigInt.fromI32(0) as unknown as Bytes // Will be set on registration
-        user.referrerId = BigInt.fromI32(0)
-        user.level = 0
-        user.totalIncome = ZERO_BD
-        user.referralIncome = ZERO_BD
-        user.sponsorIncome = ZERO_BD
-        user.matrixIncome = ZERO_BD
-        user.royaltyIncome = ZERO_BD
-        user.registeredAt = BigInt.fromI32(0)
-        user.transactionCount = 0
-        user.save()
-    }
-    return user
-}
-
 function toBNB(amount: BigInt): BigDecimal {
     return amount.toBigDecimal().div(ONE_ETHER)
 }
 
 export function handleUserRegistered(event: UserRegistered): void {
-    let user = getOrCreateUser(event.params.userId)
+    let user = new User(event.params.userId.toString())
     user.address = event.params.account
     user.referrerId = event.params.referrer
-    user.level = 1 // Starting level
+    user.level = 1
+    user.totalIncome = ZERO_BD
     user.registeredAt = event.block.timestamp
+    user.transactionCount = 0
     user.save()
 
-    // Create registration transaction
     let txId = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
     let transaction = new Transaction(txId)
     transaction.txHash = event.transaction.hash
@@ -52,17 +34,15 @@ export function handleUserRegistered(event: UserRegistered): void {
     transaction.user = user.id
     transaction.amount = ZERO_BD
     transaction.save()
-
-    user.transactionCount = user.transactionCount + 1
-    user.save()
 }
 
 export function handleReferralPayment(event: ReferralPayment): void {
-    let user = getOrCreateUser(event.params.referrerId)
-    let amount = toBNB(event.params.amount)
+    let user = User.load(event.params.referrerId.toString())
+    if (!user) return
 
-    user.referralIncome = user.referralIncome.plus(amount)
+    let amount = toBNB(event.params.amount)
     user.totalIncome = user.totalIncome.plus(amount)
+    user.transactionCount = user.transactionCount + 1
     user.save()
 
     let txId = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
@@ -75,17 +55,15 @@ export function handleReferralPayment(event: ReferralPayment): void {
     transaction.amount = amount
     transaction.fromUserId = event.params.userId
     transaction.save()
-
-    user.transactionCount = user.transactionCount + 1
-    user.save()
 }
 
 export function handleSponsorCommission(event: SponsorCommissionPaid): void {
-    let user = getOrCreateUser(event.params.sponsorId)
-    let amount = toBNB(event.params.amount)
+    let user = User.load(event.params.sponsorId.toString())
+    if (!user) return
 
-    user.sponsorIncome = user.sponsorIncome.plus(amount)
+    let amount = toBNB(event.params.amount)
     user.totalIncome = user.totalIncome.plus(amount)
+    user.transactionCount = user.transactionCount + 1
     user.save()
 
     let txId = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
@@ -99,17 +77,15 @@ export function handleSponsorCommission(event: SponsorCommissionPaid): void {
     transaction.fromUserId = event.params.fromUserId
     transaction.level = event.params.level.toI32()
     transaction.save()
-
-    user.transactionCount = user.transactionCount + 1
-    user.save()
 }
 
 export function handleMatrixPayment(event: MatrixPayment): void {
-    let user = getOrCreateUser(event.params.toUserId)
-    let amount = toBNB(event.params.amount)
+    let user = User.load(event.params.toUserId.toString())
+    if (!user) return
 
-    user.matrixIncome = user.matrixIncome.plus(amount)
+    let amount = toBNB(event.params.amount)
     user.totalIncome = user.totalIncome.plus(amount)
+    user.transactionCount = user.transactionCount + 1
     user.save()
 
     let txId = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
@@ -123,14 +99,14 @@ export function handleMatrixPayment(event: MatrixPayment): void {
     transaction.fromUserId = event.params.fromUserId
     transaction.level = event.params.level.toI32()
     transaction.save()
-
-    user.transactionCount = user.transactionCount + 1
-    user.save()
 }
 
 export function handleUserUpgraded(event: UserUpgraded): void {
-    let user = getOrCreateUser(event.params.userId)
+    let user = User.load(event.params.userId.toString())
+    if (!user) return
+
     user.level = event.params.newLevel.toI32()
+    user.transactionCount = user.transactionCount + 1
     user.save()
 
     let txId = event.transaction.hash.toHex() + "-" + event.logIndex.toString()
@@ -143,7 +119,4 @@ export function handleUserUpgraded(event: UserUpgraded): void {
     transaction.amount = toBNB(event.params.amount)
     transaction.level = event.params.newLevel.toI32()
     transaction.save()
-
-    user.transactionCount = user.transactionCount + 1
-    user.save()
 }

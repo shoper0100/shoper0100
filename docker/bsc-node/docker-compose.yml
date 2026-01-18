@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # BSC RPC Node (Geth) - Binance Smart Chain Full Node
+  bsc-node:
+    image: ethereum/client-go:stable
+    container_name: ridebnb-bsc-node
+    restart: unless-stopped
+    command:
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.vhosts=*
+      - --http.corsdomain=*
+      - --http.api=eth,net,web3,txpool,debug
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.origins=*
+      - --ws.api=eth,net,web3,txpool,debug
+      - --datadir=/data
+      - --syncmode=snap
+      - --cache=8192
+      - --maxpeers=100
+      - --networkid=56
+    ports:
+      - "8545:8545" # HTTP RPC
+      - "8546:8546" # WebSocket RPC
+      - "30303:30303" # P2P TCP
+      - "30303:30303/udp" # P2P UDP
+    volumes:
+      - bsc-data:/data
+    networks:
+      - ridebnb-network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:8545 --post-data='{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}' --header='Content-Type:application/json' || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 300s
+
+volumes:
+  bsc-data:
+    driver: local
+
+networks:
+  ridebnb-network:
+    driver: bridge

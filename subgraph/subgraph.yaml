@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44"
       abi: FiveDollarBNB
-      startBlock: 43000000
+      startBlock: 1
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
