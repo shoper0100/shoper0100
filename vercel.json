@@ -1,0 +1,18 @@
+{
+    "buildCommand": "cd webapp && npm run build",
+    "outputDirectory": "webapp/.next",
+    "devCommand": "cd webapp && npm run dev",
+    "installCommand": "cd webapp && npm install",
+    "framework": "nextjs",
+    "regions": [
+        "bom1"
+    ],
+    "env": {
+        "NEXT_PUBLIC_BSC_RPC": "http://86.107.77.113:8545",
+        "NEXT_PUBLIC_SUBGRAPH_URL": "http://86.107.77.113:8000/subgraphs/name/ridebnb",
+        "NEXT_PUBLIC_CONTRACT_ADDRESS": "0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44",
+        "NEXT_PUBLIC_DEFAULT_REFER": "36999",
+        "NEXT_PUBLIC_CHAIN_ID": "56",
+        "NEXT_PUBLIC_RPC_URL": "http://86.107.77.113:8545"
+    }
+}
