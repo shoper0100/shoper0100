@@ -1,6 +1,5 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
 import { bsc } from 'wagmi/chains'
-import { createWeb3Modal } from '@web3modal/wagmi/react'
 
 // 1. Get Project ID from env
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '85bbe92e974bca9f67c7910e0d1365ea'
@@ -24,14 +23,12 @@ export const config = defaultWagmiConfig({
     enableCoinbase: true, // Optional - true by default
 })
 
-// 3. Create modal
-createWeb3Modal({
-    wagmiConfig: config,
-    projectId,
-    defaultChain: bsc,
-    themeMode: 'dark',
-    themeVariables: {
-        '--w3m-accent': '#F0B90B', // BNB Yellow
-        '--w3m-border-radius-master': '1px'
+// Add BSC chain configuration
+declare module 'wagmi' {
+    interface Register {
+        config: typeof config
     }
-})
+}
+
+// Export projectId and metadata for use in providers
+export { projectId, metadata }

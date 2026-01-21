@@ -8,10 +8,10 @@ dataSources:
     source:
       address: "0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44"
       abi: FiveDollarBNB
-      startBlock: 1
+      startBlock: 44700000  # Safe block before deployment
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.7
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - User

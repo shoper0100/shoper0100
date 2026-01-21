@@ -87,8 +87,8 @@ export default function Dashboard() {
         setLoading(true);
         try {
             const contract = new ethers.Contract(
-                CONTRACT_ADDRESS,
-                CONTRACT_ABI,
+                CONTRACTS.MAIN,
+                MAIN_ABI,
                 ethersProvider
             );
 
@@ -115,6 +115,7 @@ export default function Dashboard() {
                     referralIncome: ethers.formatEther(income.referralIncome),
                     sponsorIncome: ethers.formatEther(income.sponsorIncome),
                     levelIncome: ethers.formatEther(income.levelIncome),
+                    lostAmount: income.lostAmount ? ethers.formatEther(income.lostAmount) : '0',
                 });
 
                 setUserInfo({
@@ -131,6 +132,7 @@ export default function Dashboard() {
                     referralIncome: ethers.formatEther(income.referralIncome),
                     sponsorIncome: ethers.formatEther(income.sponsorIncome),
                     levelIncome: ethers.formatEther(income.levelIncome),
+                    lostAmount: income.lostAmount ? ethers.formatEther(income.lostAmount) : '0',
                     royaltyIncome: '0',
                 });
 
@@ -283,6 +285,7 @@ export default function Dashboard() {
 
     // Load transaction history when user data is available
     useEffect(() => {
+        console.log('📊 Transaction History Effect:', { userId, userAddress: !!userAddress, ethersProvider: !!ethersProvider, transactionHistory: !!transactionHistory });
         if (userId && userAddress && ethersProvider && !transactionHistory) {
             loadTransactionHistory();
         }
@@ -344,7 +347,7 @@ export default function Dashboard() {
         console.log('- Chain ID:', process.env.NEXT_PUBLIC_CHAIN_ID);
         console.log('- Contract:', process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
 
-        if (!provider || !userId) {
+        if (!ethersProvider || !userId) {
             console.warn('⚠️ Provider or userId not available');
             setMatrixData(getSampleMatrixData());
             return;
@@ -358,7 +361,7 @@ export default function Dashboard() {
             const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || CONTRACTS.MAIN;
 
             // Quick matrix fetch - just gets direct team
-            const matrix = await fetchQuickMatrix(userId, provider, contractAddress);
+            const matrix = await fetchQuickMatrix(userId, ethersProvider, contractAddress);
 
             if (matrix && matrix.length > 0) {
                 setMatrixData(matrix as any);
@@ -504,7 +507,7 @@ export default function Dashboard() {
 
         setUpgrading(true);
         try {
-            if (!signer || !provider) {
+            if (!signer || !ethersProvider) {
                 alert('Please connect wallet first');
                 return;
             }
@@ -512,7 +515,7 @@ export default function Dashboard() {
             const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, signer);
 
             // Check balance first
-            const balance = await provider.getBalance(await signer.getAddress());
+            const balance = await ethersProvider.getBalance(await signer.getAddress());
             const costInWei = ethers.parseEther(upgradeCost);
 
             if (balance < costInWei) {
@@ -665,6 +668,7 @@ export default function Dashboard() {
                                                 <CompactStat label="Sponsor" value={`${parseFloat(incomeData.sponsorIncome || '0').toFixed(5)}`} icon="🎯" color="orange" onClick={() => handleIncomeCardClick('sponsor')} txCount={transactionHistory?.sponsorIncome.length} />
                                                 <CompactStat label="Matrix" value={`${parseFloat(incomeData.levelIncome || '0').toFixed(5)}`} icon="🌐" color="indigo" onClick={() => handleIncomeCardClick('matrix')} txCount={transactionHistory?.matrixIncome.length} />
                                                 <CompactStat label="Royalty" value={`${parseFloat(incomeData.royaltyIncome || '0').toFixed(5)}`} icon="👑" color="yellow" onClick={() => handleIncomeCardClick('royalty')} txCount={transactionHistory?.royaltyIncome.length} />
+                                                <CompactStat label="Lost" value={`${parseFloat(incomeData.lostAmount || '0').toFixed(5)}`} icon="❌" color="red" />
                                                 <CompactStat label="Team" value={userInfo?.team || '0'} icon="👨‍👩‍👧‍👦" color="teal" />
                                             </div>
                                         </div>

@@ -153,6 +153,19 @@ export default function TransactionHistoryModal({
                                                             From: <span className="text-yellow-400">User #{tx.fromUserId}</span>
                                                         </p>
                                                     )}
+                                                    {tx.type === 'matrix' && tx.qualified !== undefined && (
+                                                        <p className="text-sm">
+                                                            {tx.qualified ? (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/50 text-green-300 border border-green-500/50">
+                                                                    ✓ Qualified
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-900/50 text-red-300 border border-red-500/50">
+                                                                    ✗ Missed
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                    )}
                                                     <a
                                                         href={getExplorerUrl(tx.txHash)}
                                                         target="_blank"

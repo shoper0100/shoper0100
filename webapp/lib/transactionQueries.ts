@@ -9,6 +9,7 @@ export interface Transaction {
     amount: string;
     fromUserId?: number;
     level?: number;
+    qualified?: boolean; // For matrix payments - did user qualify?
     blockNumber: number;
 }
 
@@ -46,10 +47,16 @@ export async function fetchUserTransactions(
 
     try {
         const currentBlock = await provider.getBlockNumber();
-        // Query last 50,000 blocks (~18 hours on BSC)
-        const fromBlock = Math.max(0, currentBlock - 50000);
 
-        console.log(`   Querying last 50,000 blocks (${fromBlock} → ${currentBlock})`);
+        // Query ALL transactions from contract deployment (not time-based)
+        // BSC Mainnet contract deployed at block ~43000000 (adjust if different)
+        const deploymentBlock = 43000000; // Change this to your actual deployment block
+        const fromBlock = deploymentBlock;
+
+        console.log(`   🔍 Querying ALL transactions from contract deployment`);
+        console.log(`   📦 Block range: ${fromBlock} → ${currentBlock} (${currentBlock - fromBlock} blocks)`);
+        console.log(`   📍 Contract Address: ${contractAddress}`);
+        console.log(`   👤 User ID: ${userId}`);
 
         // 1. Referral Income
         try {
@@ -101,6 +108,8 @@ export async function fetchUserTransactions(
 
             for (const event of matrixEvents) {
                 const txHash = event.transactionHash;
+                const qualified = event.args!.qualified;
+                const fromUserId = Number(event.args!.fromUserId);
 
                 if (!matrixByTx.has(txHash)) {
                     matrixByTx.set(txHash, {
@@ -109,14 +118,25 @@ export async function fetchUserTransactions(
                         type: 'matrix',
                         amount: ethers.formatEther(event.args!.amount),
                         level: Number(event.args!.level),
+                        fromUserId: fromUserId,
+                        qualified: qualified,
                         blockNumber: event.blockNumber
                     });
                 } else {
-                    // Sum amounts from same transaction (multiple layers)
+                    // BUG FIX: Don't sum! Each event is a separate payment
+                    // Use event index to create unique key instead of txHash
                     const existing = matrixByTx.get(txHash)!;
-                    const currentAmount = parseFloat(existing.amount);
-                    const newAmount = parseFloat(ethers.formatEther(event.args!.amount));
-                    existing.amount = (currentAmount + newAmount).toString();
+                    // Create new entry with unique key
+                    matrixByTx.set(`${txHash}-${event.logIndex}`, {
+                        txHash: txHash,
+                        timestamp: new Date(),
+                        type: 'matrix',
+                        amount: ethers.formatEther(event.args!.amount),
+                        level: Number(event.args!.level),
+                        fromUserId: fromUserId,
+                        qualified: qualified,
+                        blockNumber: event.blockNumber
+                    });
                 }
             }
 
@@ -132,7 +152,7 @@ export async function fetchUserTransactions(
             history.sponsorIncome.length +
             history.matrixIncome.length;
 
-        console.log(`✅ Loaded ${history.totalTransactions} transactions (last 18 hours)`);
+        console.log(`✅ Loaded ${history.totalTransactions} transactions (all-time)`);
         console.log(`   - Referral: ${history.referralIncome.length}`);
         console.log(`   - Sponsor: ${history.sponsorIncome.length}`);
         console.log(`   - Matrix: ${history.matrixIncome.length}`);
