@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder

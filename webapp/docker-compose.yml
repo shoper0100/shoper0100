@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: fivedollarbnb
     ports:
-      - "3000:3000"
+      - "80:3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_BSC_RPC=https://bsc-dataseed.binance.org/
