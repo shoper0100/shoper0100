@@ -4,7 +4,26 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACTS, MAIN_ABI } from '@/lib/contracts';
 
+import PresentationSection from '@/components/PresentationSection';
+
+// ... (existing imports)
+
 export default function Home() {
+  // ... (existing code)
+
+  {/* Hero Section */ }
+  {/* ... (existing hero code) ... */ }
+  {
+    !wallet && (
+      <p className="text-green-400 font-bold text-lg">✅ 100% Transparent • Fully Automated • Instant Payouts</p>
+    )
+  }
+      </div >
+
+    {/* Presentation Section */ }
+    < PresentationSection />
+
+    {/* Platform Features */ }
   const [wallet, setWallet] = useState('');
   const [userId, setUserId] = useState(0);
   const [registering, setRegistering] = useState(false);
