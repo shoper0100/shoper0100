@@ -20,8 +20,12 @@ export default function Home() {
   }
       </div >
 
-    {/* Presentation Section */ }
-    < PresentationSection />
+    {/* Presentation Section Moved to /presentation */ }
+    < div className = "text-center mb-16" >
+      <a href="/presentation" className="inline-block bg-white/10 hover:bg-white/20 text-yellow-300 px-8 py-3 rounded-full text-lg font-bold border border-yellow-400/30 transition-all">
+        📺 Watch Presentation
+      </a>
+      </div >
 
     {/* Platform Features */ }
   const [wallet, setWallet] = useState('');
