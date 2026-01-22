@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACTS, MAIN_ABI } from '@/lib/contracts';
+import PresentationSection from '@/components/PresentationSection';
 
 export default function Home() {
   const [wallet, setWallet] = useState('');
@@ -260,6 +261,9 @@ export default function Home() {
           <p className="text-green-400 font-bold text-lg">✅ 100% Transparent • Fully Automated • Instant Payouts</p>
         )}
       </div>
+
+      {/* Presentation Section */}
+      <PresentationSection />
 
       {/* Platform Features */}
       <div className="container mx-auto px-4 py-16">
