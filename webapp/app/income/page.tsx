@@ -49,6 +49,7 @@ export default function Dashboard() {
     const [transactionHistory, setTransactionHistory] = useState<IncomeHistory | null>(null);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [historyFilter, setHistoryFilter] = useState<'all' | 'referral' | 'sponsor' | 'matrix' | 'royalty'>('all');
+    const [sponsorInfo, setSponsorInfo] = useState<{ id: number, address: string } | null>(null);
 
     // Sync Wagmi address to local state and load data
     useEffect(() => {
@@ -63,6 +64,25 @@ export default function Dashboard() {
             setUserInfo(null);
         }
     }, [address, isConnected, ethersProvider]);
+
+    // Fetch sponsor info from URL on mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const refId = params.get('refid') || params.get('ref');
+        if (refId && ethersProvider) {
+            const refIdNum = Number(refId);
+            const fetchSponsorInfo = async () => {
+                try {
+                    const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, ethersProvider);
+                    const sponsorAddress = await contract.userList(refIdNum);
+                    setSponsorInfo({ id: refIdNum, address: sponsorAddress });
+                } catch (error) {
+                    console.error('Failed to fetch sponsor info:', error);
+                }
+            };
+            fetchSponsorInfo();
+        }
+    }, [ethersProvider]);
 
     const connectWallet = async () => {
         await open();
