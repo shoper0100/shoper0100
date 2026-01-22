@@ -20,27 +20,12 @@ export default function Home() {
       setReferralId(Number(refId));
     }
 
-    // Fetch level costs from contract
-    const fetchLevelCosts = async () => {
-      try {
-        const provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[0]);
-        const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
-        const costs: string[] = [];
-        for (let i = 0; i < 13; i++) {
-          const cost = await contract.getLevelCost(i);
-          costs.push('$' + Number(ethers.formatEther(cost)).toLocaleString());
-        }
-        setLevelCosts(costs);
-      } catch (error) {
-        console.error('Failed to fetch level costs:', error);
-        // Fallback to correct hardcoded values
-        setLevelCosts([
-          '$5', '$5', '$10', '$20', '$40', '$80', '$160',
-          '$320', '$640', '$1,280', '$2,560', '$5,120', '$10,240'
-        ]);
-      }
-    };
-    fetchLevelCosts();
+    // Set level costs - using hardcoded USD values
+    // Contract returns BNB amounts, not USD costs for display
+    setLevelCosts([
+      '$5', '$5', '$10', '$20', '$40', '$80', '$160',
+      '$320', '$640', '$1,280', '$2,560', '$5,120', '$10,240'
+    ]);
   }, []);
 
   const connectWallet = async () => {
