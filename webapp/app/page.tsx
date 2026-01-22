@@ -18,14 +18,10 @@ export default function Home() {
       <p className="text-green-400 font-bold text-lg">✅ 100% Transparent • Fully Automated • Instant Payouts</p>
     )
   }
-    </div >
+      </div >
 
-    {/* Presentation Section Moved to /presentation */ }
-    < div className = "text-center mb-16" >
-      <a href="/presentation" className="inline-block bg-white/10 hover:bg-white/20 text-yellow-300 px-8 py-3 rounded-full text-lg font-bold border border-yellow-400/30 transition-all">
-        📺 Watch Presentation
-      </a>
-    </div >
+    {/* Presentation Section */ }
+    < PresentationSection />
 
     {/* Platform Features */ }
   const [wallet, setWallet] = useState('');
