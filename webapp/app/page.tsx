@@ -11,13 +11,28 @@ export default function Home() {
   const [registering, setRegistering] = useState(false);
   const [referralId, setReferralId] = useState(CONTRACTS.ROOT_USER_ID);
   const [levelCosts, setLevelCosts] = useState<string[]>([]);
+  const [sponsorInfo, setSponsorInfo] = useState<{ id: number, address: string } | null>(null);
 
   useEffect(() => {
     // Get referral ID from URL
     const params = new URLSearchParams(window.location.search);
     const refId = params.get('refid') || params.get('ref');
     if (refId) {
-      setReferralId(Number(refId));
+      const refIdNum = Number(refId);
+      setReferralId(refIdNum);
+
+      // Fetch sponsor information
+      const fetchSponsorInfo = async () => {
+        try {
+          const provider = new ethers.JsonRpcProvider(CONTRACTS.rpcUrls[0]);
+          const contract = new ethers.Contract(CONTRACTS.MAIN, MAIN_ABI, provider);
+          const sponsorAddress = await contract.userList(refIdNum);
+          setSponsorInfo({ id: refIdNum, address: sponsorAddress });
+        } catch (error) {
+          console.error('Failed to fetch sponsor info:', error);
+        }
+      };
+      fetchSponsorInfo();
     }
 
     // Set level costs - using hardcoded USD values
@@ -235,6 +250,22 @@ export default function Home() {
             </button>
           )}
         </div>
+
+        {/* Sponsor Information Display */}
+        {sponsorInfo && wallet && userId === 0 && (
+          <div className="mb-6 mx-auto max-w-md">
+            <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 backdrop-blur-md border-2 border-purple-400/50 rounded-xl p-6">
+              <p className="text-white font-bold text-lg mb-2">🤝 You're Joining Under:</p>
+              <div className="bg-black/30 rounded-lg p-4">
+                <p className="text-yellow-300 font-bold text-sm mb-1">Sponsor ID: #{sponsorInfo.id}</p>
+                <p className="text-blue-200 text-xs font-mono break-all">
+                  {sponsorInfo.address}
+                </p>
+              </div>
+              <p className="text-green-300 text-sm mt-3 text-center">✅ Verified Sponsor Link</p>
+            </div>
+          </div>
+        )}
 
         {wallet && (
           <p className="text-yellow-300 font-bold text-lg">
