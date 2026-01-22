@@ -18,7 +18,7 @@ export default function Home() {
       <p className="text-green-400 font-bold text-lg">✅ 100% Transparent • Fully Automated • Instant Payouts</p>
     )
   }
-      </div >
+    </div >
 
     {/* Presentation Section Moved to /presentation */ }
     < div className = "text-center mb-16" >
