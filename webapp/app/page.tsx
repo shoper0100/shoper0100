@@ -376,6 +376,50 @@ export default function Home() {
         </div>
       </div>
 
+
+      {/* Passive Sponsor Income Highlight */}
+      <div className="container mx-auto px-4 py-16 mb-8">
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-md rounded-2xl p-8 border-2 border-green-400/50">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-green-300 text-center mb-4">
+            🤝 Passive Sponsor Income - The Game Changer!
+          </h2>
+          <p className="text-xl text-white text-center mb-6">
+            This is what separates FDC from ordinary platforms
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-black/30 rounded-xl p-6">
+              <h3 className="text-2xl font-bold text-yellow-300 mb-3">💸 Earn from EVERY Level</h3>
+              <p className="text-gray-200">
+                When anyone in your downline upgrades to a higher level, YOU earn a commission - even if you didn't directly refer them!
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-xl p-6">
+              <h3 className="text-2xl font-bold text-yellow-300 mb-3">♾️ Unlimited Depth</h3>
+              <p className="text-gray-200">
+                Your earning potential has NO LIMIT. As your team grows 10, 100, 1000 levels deep, you keep earning passively forever!
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-xl p-6">
+              <h3 className="text-2xl font-bold text-yellow-300 mb-3">🔁 Recurring Income</h3>
+              <p className="text-gray-200">
+                Members upgrade multiple times (13 levels each). Every upgrade = passive income for you. Build once, profit for life!
+              </p>
+            </div>
+            <div className="bg-black/30 rounded-xl p-6">
+              <h3 className="text-2xl font-bold text-yellow-300 mb-3">🚀 Exponential Growth</h3>
+              <p className="text-gray-200">
+                Your team builds their teams, who build their teams... You earn from ALL of them automatically!
+              </p>
+            </div>
+          </div>
+          <div className="mt-8 text-center">
+            <p className="text-2xl font-bold text-white bg-green-600/50 inline-block px-8 py-4 rounded-xl">
+              ✨ This is TRUE Passive Income - Your Team Works While You Sleep!
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* How It Works */}
       <div className="container mx-auto px-4 py-16">
         <h2 className="text-4xl md:text-5xl font-extrabold text-yellow-300 text-center mb-12 drop-shadow-lg" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.6)' }}>
