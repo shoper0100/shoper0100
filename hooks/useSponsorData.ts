@@ -22,31 +22,16 @@ export function useSponsorData(userId?: bigint) {
                 setLoading(true);
                 setError(null);
 
-                // Get last 100 income transactions
-                const incomeData = await contract.getIncome(userId, 100);
-
-                // Filter for sponsor income (layer = 0)
-                const sponsorTransactions: Income[] = incomeData
-                    .filter((item: any) => item.layer === BigInt(0))
-                    .map((item: any) => ({
-                        id: item.id,
-                        layer: item.layer,
-                        amount: item.amount,
-                        time: item.time,
-                        isLost: item.isLost,
-                    }));
-
-                setSponsorIncome(sponsorTransactions);
-
-                //Calculate total sponsor income
-                const total = sponsorTransactions
-                    .filter((item) => !item.isLost)
-                    .reduce((sum, item) => sum + item.amount, BigInt(0));
-
-                setTotalSponsorIncome(total);
+                // Note: getIncome function doesn't exist on deployed contract
+                // Would need to fetch from event logs instead
+                // For now, return empty data
+                setSponsorIncome([]);
+                setTotalSponsorIncome(BigInt(0));
             } catch (err) {
                 console.error('Error fetching sponsor data:', err);
                 setError(err instanceof Error ? err.message : 'Failed to fetch sponsor data');
+                setSponsorIncome([]);
+                setTotalSponsorIncome(BigInt(0));
             } finally {
                 setLoading(false);
             }
@@ -59,27 +44,14 @@ export function useSponsorData(userId?: bigint) {
         if (!contract || !userId) return;
         setLoading(true);
         try {
-            const incomeData = await contract.getIncome(userId, 100);
-            const sponsorTransactions: Income[] = incomeData
-                .filter((item: any) => item.layer === BigInt(0))
-                .map((item: any) => ({
-                    id: item.id,
-                    layer: item.layer,
-                    amount: item.amount,
-                    time: item.time,
-                    isLost: item.isLost,
-                }));
-
-            setSponsorIncome(sponsorTransactions);
-
-            const total = sponsorTransactions
-                .filter((item) => !item.isLost)
-                .reduce((sum, item) => sum + item.amount, BigInt(0));
-
-            setTotalSponsorIncome(total);
+            // Function doesn't exist - return empty
+            setSponsorIncome([]);
+            setTotalSponsorIncome(BigInt(0));
         } catch (err) {
             console.error('Error refreshing sponsor data:', err);
             setError(err instanceof Error ? err.message : 'Failed to refresh sponsor data');
+            setSponsorIncome([]);
+            setTotalSponsorIncome(BigInt(0));
         } finally {
             setLoading(false);
         }

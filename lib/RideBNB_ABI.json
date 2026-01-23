@@ -13,17 +13,49 @@
       },
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_rootUserAddress",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "_defaultRefer",
+        "name": "_rootUserId",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_priceFeedAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
   },
   {
     "anonymous": false,
@@ -55,20 +87,33 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "configName",
-        "type": "string"
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "oldValue",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "AutoUpdateToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldPrice",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "newValue",
+        "name": "newPrice",
         "type": "uint256"
       },
       {
@@ -78,7 +123,7 @@
         "type": "uint256"
       }
     ],
-    "name": "ConfigUpdated",
+    "name": "BNBPriceUpdated",
     "type": "event"
   },
   {
@@ -87,45 +132,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "oldDAO",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newDAO",
-        "type": "address"
-      }
-    ],
-    "name": "DAOTransferred",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "oldAdmin",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newAdmin",
-        "type": "address"
-      }
-    ],
-    "name": "EmergencyAdminSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "admin",
+        "name": "by",
         "type": "address"
       },
       {
@@ -135,7 +142,7 @@
         "type": "uint256"
       }
     ],
-    "name": "EmergencyPaused",
+    "name": "ContractPaused",
     "type": "event"
   },
   {
@@ -144,7 +151,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "admin",
+        "name": "by",
         "type": "address"
       },
       {
@@ -154,23 +161,23 @@
         "type": "uint256"
       }
     ],
-    "name": "EmergencyUnpaused",
+    "name": "ContractUnpaused",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "oldReceiver",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldReferrer",
+        "type": "uint256"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newReceiver",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newReferrer",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -179,7 +186,7 @@
         "type": "uint256"
       }
     ],
-    "name": "FeeReceiverUpdated",
+    "name": "FallbackReferrerUpdated",
     "type": "event"
   },
   {
@@ -188,20 +195,14 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "fromId",
+        "name": "userId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "toId",
+        "name": "fromUser",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "incomeType",
-        "type": "string"
       },
       {
         "indexed": false,
@@ -211,12 +212,74 @@
       },
       {
         "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
       }
     ],
-    "name": "IncomeDistributed",
+    "name": "IncomeLost",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint8",
+        "name": "level",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldCost",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newCost",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "LevelCostUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ManualPriceSet",
     "type": "event"
   },
   {
@@ -225,13 +288,13 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "fromId",
+        "name": "fromUserId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "toId",
+        "name": "toUserId",
         "type": "uint256"
       },
       {
@@ -272,16 +335,16 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "userId",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "oldDepth",
+        "type": "uint8"
       },
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "upline",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "newDepth",
+        "type": "uint8"
       },
       {
         "indexed": false,
@@ -290,7 +353,45 @@
         "type": "uint256"
       }
     ],
-    "name": "MatrixPlaced",
+    "name": "MaxPlacementDepthUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "paused",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "OraclePauseToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "OwnershipRenounced",
     "type": "event"
   },
   {
@@ -316,15 +417,190 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "minPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "PriceBoundsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newFeed",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "PriceFeedUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "currentPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "PriceUpdateFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "referrerId",
+        "type": "uint256"
+      },
+      {
         "indexed": true,
         "internalType": "uint256",
         "name": "userId",
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReferralPayment",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "oldCooldown",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newCooldown",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RegistrationCooldownUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
-        "name": "account",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "cooldownRemaining",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RegistrationRateLimited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "source",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "RootFallbackIncome",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "rootUserId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "rootAddress",
         "type": "address"
       },
       {
@@ -349,7 +625,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "royaltyLevel",
+        "name": "tier",
         "type": "uint256"
       },
       {
@@ -373,15 +649,15 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "oldRoyalty",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "userId",
+        "type": "uint256"
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newRoyalty",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -390,7 +666,7 @@
         "type": "uint256"
       }
     ],
-    "name": "RoyaltyContractUpdated",
+    "name": "RoyaltyPoolFunded",
     "type": "event"
   },
   {
@@ -405,13 +681,19 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "recipientId",
+        "name": "fromUserId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "level",
         "type": "uint256"
       },
       {
@@ -428,21 +710,9 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "userId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "uplineId",
-        "type": "uint256"
-      },
-      {
         "indexed": false,
         "internalType": "uint256",
-        "name": "newCount",
+        "name": "newIntervalDays",
         "type": "uint256"
       },
       {
@@ -452,32 +722,7 @@
         "type": "uint256"
       }
     ],
-    "name": "TeamCountUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "userId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "reason",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "UserDeactivated",
+    "name": "UpdateIntervalChanged",
     "type": "event"
   },
   {
@@ -523,7 +768,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "level",
+        "name": "newLevel",
         "type": "uint256"
       },
       {
@@ -544,7 +789,111 @@
   },
   {
     "inputs": [],
-    "name": "PRICE_UPDATE_INTERVAL",
+    "name": "ADMIN_FEE_PERCENT",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DIRECT_REQUIRED",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "FEE_RECEIVER",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_INCOME_LAYER",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_LEVELS",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_REFERRAL_LAYERS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ROYALTY_ADDR",
+    "outputs": [
+      {
+        "internalType": "contract IRoyalty",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ROYALTY_FUND_PERCENT",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "START_TIME",
     "outputs": [
       {
         "internalType": "uint256",
@@ -569,21 +918,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256[13]",
-        "name": "_usdAmounts",
-        "type": "uint256[13]"
-      }
-    ],
-    "name": "batchUpdateLevels",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
-    "name": "bnbPriceInUSD",
+    "name": "bnbPrice",
     "outputs": [
       {
         "internalType": "uint256",
@@ -592,6 +928,32 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimMyRoyalty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimRoyalty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -614,44 +976,7 @@
   },
   {
     "inputs": [],
-    "name": "daoAddress",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "directRequired",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "directTeam",
+    "name": "fallbackReferrer",
     "outputs": [
       {
         "internalType": "uint256",
@@ -664,208 +989,21 @@
   },
   {
     "inputs": [],
-    "name": "emergencyAdmin",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencyPause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencyUnpause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "emergencyWithdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "feeReceiver",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getContractConfig",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_directRequired",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_sponsorCommission",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_minSponsorLevel",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_bnbPriceInUSD",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxLayers",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxReferralLayers",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_maxSponsorLayers",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_totalUsers",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_defaultRefer",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_royaltyFundPercent",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getDefaultRefer",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getGovernanceAddresses",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "dao",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "ownerAddr",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "emergency",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_user",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_length",
-        "type": "uint256"
-      }
-    ],
-    "name": "getIncome",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "layer",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "time",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isLost",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct RideBNB.Income[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getLevels",
+    "name": "getAllLevelCosts",
     "outputs": [
       {
         "internalType": "uint256[13]",
-        "name": "",
+        "name": "costs",
         "type": "uint256[13]"
       },
       {
         "internalType": "uint256[13]",
-        "name": "",
+        "name": "fees",
+        "type": "uint256[13]"
+      },
+      {
+        "internalType": "uint256[13]",
+        "name": "totals",
         "type": "uint256[13]"
       }
     ],
@@ -873,19 +1011,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_user",
-        "type": "uint256"
-      }
-    ],
-    "name": "getMatrixDirect",
+    "inputs": [],
+    "name": "getContractBalance",
     "outputs": [
       {
-        "internalType": "uint256[2]",
-        "name": "_directs",
-        "type": "uint256[2]"
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -893,12 +1025,12 @@
   },
   {
     "inputs": [],
-    "name": "getOwner",
+    "name": "getLatestBNBPrice",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -908,33 +1040,45 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_num",
+        "name": "_level",
         "type": "uint256"
       }
     ],
-    "name": "getRecentActivities",
+    "name": "getLevelCost",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "id",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "level",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RideBNB.Activity[]",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple[]"
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_level",
+        "type": "uint256"
+      }
+    ],
+    "name": "getLevelCostWithFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "cost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adminFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -942,12 +1086,108 @@
   },
   {
     "inputs": [],
-    "name": "getRoyaltyLevels",
+    "name": "getMyIncomeBreakdown",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalDeposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalIncome",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referralIncome",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sponsorIncome",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "levelIncome",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lostAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMyInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "userId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "level",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "team",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "directTeam",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalIncome",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "referrerId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "uplineId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "registrationTime",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMyRoyaltyStatus",
     "outputs": [
       {
         "internalType": "uint256[4]",
-        "name": "",
+        "name": "claimableAmounts",
         "type": "uint256[4]"
+      },
+      {
+        "internalType": "bool[4]",
+        "name": "isEligible",
+        "type": "bool[4]"
+      },
+      {
+        "internalType": "bool[4]",
+        "name": "hasClaimed",
+        "type": "bool[4]"
       }
     ],
     "stateMutability": "view",
@@ -955,30 +1195,54 @@
   },
   {
     "inputs": [],
-    "name": "getRoyaltyPercents",
+    "name": "getMyTeam",
     "outputs": [
       {
-        "internalType": "uint256[4]",
-        "name": "",
-        "type": "uint256[4]"
+        "internalType": "uint256",
+        "name": "teamSize",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "directCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "directReferralIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "directReferralAddresses",
+        "type": "address[]"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "getUserCurDay",
+    "inputs": [],
+    "name": "getPriceStatus",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "oraclePrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "storedPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "updateDue",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timeSinceUpdate",
         "type": "uint256"
       }
     ],
@@ -991,28 +1255,99 @@
         "internalType": "uint256",
         "name": "_userId",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_royaltyLvl",
-        "type": "uint256"
       }
     ],
-    "name": "getUserRoyaltyData",
+    "name": "getReferrerAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRegistrationCost",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "cost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "levelCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "adminFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRoyaltyData",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimableAmount",
         "type": "uint256"
       },
       {
         "internalType": "bool",
-        "name": "taken",
+        "name": "isEligible",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "active",
+        "name": "hasClaimed",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRoyaltyDataByAddress",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "claimableAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isEligible",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "hasClaimed",
         "type": "bool"
       }
     ],
@@ -1023,16 +1358,98 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_tier",
         "type": "uint256"
       }
     ],
-    "name": "globalUsers",
+    "name": "getRoyaltyTierStats",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "userCount",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "distributionRound",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingUserCount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_levels",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUpgradeCost",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "breakdown",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_userAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_levels",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUpgradeCostFor",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalCost",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "breakdown",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_userId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUserAccount",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1058,14 +1475,47 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "initializeRoyalty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isAutonomous",
+    "outputs": [
       {
-        "internalType": "uint256",
-        "name": "_userId",
-        "type": "uint256"
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
-    "name": "isQualifiedForMatrix",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isPriceUpdateDue",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "isRegistered",
     "outputs": [
       {
         "internalType": "bool",
@@ -1079,6 +1529,44 @@
   {
     "inputs": [],
     "name": "lastPriceUpdate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lastRegistrationTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "levelCosts",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1110,7 +1598,20 @@
   },
   {
     "inputs": [],
-    "name": "maxReferralLayers",
+    "name": "manualPriceUpdate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "matrixDirect",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1123,12 +1624,51 @@
   },
   {
     "inputs": [],
-    "name": "minSponsorLevel",
+    "name": "maxBNBPrice",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxPlacementDepth",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minBNBPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oraclePaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1149,6 +1689,13 @@
   },
   {
     "inputs": [],
+    "name": "pauseContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "paused",
     "outputs": [
       {
@@ -1162,15 +1709,35 @@
   },
   {
     "inputs": [],
-    "name": "priceOracle",
+    "name": "priceFeed",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract AggregatorV3Interface",
         "name": "",
         "type": "address"
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "priceUpdateInterval",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "recoverBNB",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1192,21 +1759,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "royaltyAddr",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract IRoyalty",
-        "name": "",
+        "internalType": "address",
+        "name": "_referrerAddress",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "registerMe",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "royaltyFundPercent",
+    "name": "registrationCooldown",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1215,6 +1782,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1234,11 +1808,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_priceInUSD",
+        "name": "_newFallback",
         "type": "uint256"
       }
     ],
-    "name": "setBnbPrice",
+    "name": "setFallbackReferrer",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1246,35 +1820,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_newRequired",
-        "type": "uint256"
-      }
-    ],
-    "name": "setDirectRequired",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newAdmin",
-        "type": "address"
-      }
-    ],
-    "name": "setEmergencyAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_levelIndex",
-        "type": "uint256"
+        "internalType": "uint8",
+        "name": "_level",
+        "type": "uint8"
       },
       {
         "internalType": "uint256",
@@ -1291,16 +1839,16 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_levelIndex",
+        "name": "_level",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_newPercent",
+        "name": "_costUSD",
         "type": "uint256"
       }
     ],
-    "name": "setLevelFeePercent",
+    "name": "setLevelCostUSD",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1309,11 +1857,24 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_max",
+        "name": "_price",
         "type": "uint256"
       }
     ],
-    "name": "setMaxLayers",
+    "name": "setManualPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_newDepth",
+        "type": "uint8"
+      }
+    ],
+    "name": "setMaxPlacementDepth",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1322,37 +1883,16 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_max",
+        "name": "_minPrice",
         "type": "uint256"
-      }
-    ],
-    "name": "setMaxReferralLayers",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "uint256",
-        "name": "_max",
+        "name": "_maxPrice",
         "type": "uint256"
       }
     ],
-    "name": "setMaxSponsorLayers",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_newLevel",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMinSponsorLevel",
+    "name": "setPriceBounds",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1361,11 +1901,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_oracle",
+        "name": "_priceFeedAddress",
         "type": "address"
       }
     ],
-    "name": "setPriceOracle",
+    "name": "setPriceFeed",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1374,11 +1914,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_newPercent",
+        "name": "_cooldownSeconds",
         "type": "uint256"
       }
     ],
-    "name": "setRoyaltyFundPercent",
+    "name": "setRegistrationCooldown",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1387,18 +1927,34 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_newPercent",
+        "name": "_days",
         "type": "uint256"
       }
     ],
-    "name": "setSponsorCommission",
+    "name": "setUpdateInterval",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "sponsorCommission",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "teams",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1411,15 +1967,9 @@
   },
   {
     "inputs": [],
-    "name": "startTime",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "toggleOraclePause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1439,20 +1989,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_newDAO",
-        "type": "address"
-      }
-    ],
-    "name": "transferDAOControl",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newOwner",
+        "name": "newOwner",
         "type": "address"
       }
     ],
@@ -1463,7 +2000,7 @@
   },
   {
     "inputs": [],
-    "name": "updateBnbPriceFromOracle",
+    "name": "unpauseContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1471,17 +2008,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_newDAO",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_newOwner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
       }
     ],
-    "name": "updateGovernance",
+    "name": "updateBNBPrice",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1508,19 +2040,13 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_userId",
+        "name": "_levels",
         "type": "uint256"
       }
     ],
-    "name": "userExists",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "upgradeMe",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -1535,17 +2061,12 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "totalIncome",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "totalDeposit",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "royaltyIncome",
+        "name": "totalIncome",
         "type": "uint256"
       },
       {
@@ -1555,12 +2076,12 @@
       },
       {
         "internalType": "uint256",
-        "name": "levelIncome",
+        "name": "sponsorIncome",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "sponsorIncome",
+        "name": "levelIncome",
         "type": "uint256"
       }
     ],
@@ -1578,14 +2099,14 @@
     "name": "userInfo",
     "outputs": [
       {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      },
+      {
         "internalType": "address",
         "name": "account",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "id",
-        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -1595,11 +2116,6 @@
       {
         "internalType": "uint256",
         "name": "upline",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "start",
         "type": "uint256"
       },
       {
@@ -1614,13 +2130,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "totalMatrixTeam",
+        "name": "team",
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "exists",
-        "type": "bool"
+        "internalType": "uint256",
+        "name": "registrationTime",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

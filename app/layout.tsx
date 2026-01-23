@@ -6,8 +6,8 @@ import Header from "@/components/layout/Header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "RideBNB - Decentralized Matrix Platform",
-  description: "Join the RideBNB decentralized matrix platform on opBNB",
+  title: "Five Dollar Club (FDC) - Your $5 Journey to Financial Freedom",
+  description: "Join the Five Dollar Club (FDC) - Start with $5 and earn through 5-level sponsor income, team earnings, and royalty rewards",
 };
 
 export default function RootLayout({

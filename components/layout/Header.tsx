@@ -25,9 +25,9 @@ export default function Header() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold text-xl">R</span>
+                            <span className="text-white font-bold text-xl">F</span>
                         </div>
-                        <span className="text-white font-bold text-xl">RideBNB</span>
+                        <span className="text-white font-bold text-xl">Five Dollar Club</span>
                     </Link>
 
                     {/* Navigation */}
@@ -39,8 +39,8 @@ export default function Header() {
                                     key={item.name}
                                     href={item.href}
                                     className={`text-sm font-medium transition-colors ${isActive
-                                            ? 'text-blue-500'
-                                            : 'text-gray-300 hover:text-white'
+                                        ? 'text-blue-500'
+                                        : 'text-gray-300 hover:text-white'
                                         }`}
                                 >
                                     {item.name}

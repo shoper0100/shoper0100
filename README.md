@@ -1,10 +1,10 @@
-# RideBNB - Decentralized Matrix Platform
+# Five Dollar Club (FDC) - Your $5 Journey to Financial Freedom
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Network](https://img.shields.io/badge/network-BSC%20Mainnet-yellow)](https://bscscan.com)
 [![Solidity](https://img.shields.io/badge/solidity-0.8.28-brightgreen)](https://soliditylang.org/)
 
-> A powerful decentralized matrix platform built on Binance Smart Chain (BSC) featuring a limitless binary matrix, multi-level income distribution, daily royalty rewards, and sponsor commissions.
+> A powerful decentralized income platform on Binance Smart Chain (BSC) - Start with just $5 and earn through 5-level sponsor income, team upgrade earnings (13 layers), and exclusive royalty rewards.
 
 ## 📋 Table of Contents
 
@@ -23,20 +23,22 @@
 
 ## 🌟 Overview
 
-RideBNB is a next-generation decentralized matrix platform that combines:
-- **Limitless Binary Matrix** - Infinite scalability with 2x∞ structure
-- **13 Progressive Levels** - Gradual growth from $5 to $8,192
-- **Multiple Income Streams** - Direct income, matrix earnings, sponsor commissions, and royalty rewards
-- **Daily Royalty Pools** - 4-tier system with automatic distribution
-- **Fair Distribution** - Zero black holes with root user...
+Five Dollar Club (FDC) is a next-generation decentralized income platform that combines:
+- **🎯 Earn WITHOUT Referring** - Passive income from your team's growth (up to 5 layers deep)
+- **💰 Refer = Earn MORE** - Get 95% direct bonuses when you DO refer
+- **$5 Entry Fee** - Start your journey for just five dollars
+- **Team Matrix Earnings** - Automatic income from 13-layer network upgrades
+- **Exclusive Royalty Pool** - 4-tier daily rewards for top performers
+- **Zero Black Holes** - Fair distribution with root user fallback
 
+> **Key Advantage:** You don't need to be a "recruiter" to earn! Join once, and the matrix system automatically places people below you as the platform grows. Refer people to multiply your earnings even more!
 
-**Contract Details:**
+**Platform Details:**
 - **Network:** BSC Mainnet (Chain ID: 56)
-- **Main Contract:** `FiveDollarRide_BNB_Pure.sol`
+- **Brand:** Five Dollar Club (FDC)
 - **Starting User ID:** 36999
-- **Starting Level Cost:** $5 USD (in BNB)
-- **Maximum Level:** Level 12 ($8,192 USD)
+- **Entry Fee:** $5 USD (paid in BNB)
+- **Maximum Level:** Level 13 ($10,240 USD)
 
 ## ✨ Key Features
 
@@ -136,33 +138,74 @@ Dedicated royalty management:
 
 > Note: BNB amounts are approximate based on $1,250/BNB. Actual amounts calculated on-chain.
 
+## 🎯 The FDC Advantage: Earn WITHOUT Referring!
+
+### How You Earn Passively (No Recruiting Required)
+
+Unlike traditional MLM programs, Five Dollar Club uses a **binary matrix system** that automatically places new members below existing members. This means:
+
+**✅ You Earn From People You Never Referred**
+```
+You join and are placed in the matrix
+↓
+New members join after you
+↓
+System automatically places them in the matrix
+↓
+Some are placed below YOU (spillover)
+↓
+When they upgrade, YOU earn! ✓
+```
+
+**Example Scenario:**
+```
+Day 1: You join for $5 (placed at position #1,234)
+Day 5: 100 new people join the platform
+Day 5: System places some of them below you in the matrix
+Day 10: Those people upgrade to Level 2
+Day 10: YOU earn from their upgrades (even though you never recruited them!) ✓
+```
+
+**Why This Works:**
+- **Binary Tree Structure** - Each person can only have 2 direct spots
+- **Spillover Effect** - When your upline's spots fill, new people spill down to you
+- **Up to 5 Layers** - You benefit from 5 layers of people below you
+- **Automatic Placement** - No work required on your part
+
+> **💡 Pro Tip:** If you DO refer people, you get BOTH the spillover income AND 95% direct bonuses from your referrals. That's how you maximize earnings!
+
+---
+
 ## 💰 Income Streams
 
-### 1. Direct Referral Income (Instant)
-- **Earn:** 100% of registration fee from direct referrals
-- **Amount:** $5 (in BNB) per registration
-- **Requirement:** None (automatic)
+### 1. Direct Referral Income (Optional - But Highly Profitable!)
+- **Earn:** 95% of registration fee from YOUR direct referrals
+- **Amount:** $4.75 (in BNB) per registration
+- **Requirement:** Optional - refer if you want, but not required to earn
 - **Payment:** Instant
+
+> **Note:** This is where you earn MORE by referring! While you earn passively from matrix spillover, direct referrals give you immediate bonuses.
 
 **Example:**
 ```
-You refer User A → You earn $5 instantly ✓
-You refer 10 users → You earn $50 ✓
+You refer User A → You earn $4.75 instantly ✓
+You refer 10 users → You earn $47.50 ✓
+PLUS you earn from their team's growth forever! ✓
 ```
 
-### 2. Matrix Level Income (26 Layers Deep)
-- **Earn:** From upgrades of users in your matrix (up to 26 layers below)
-- **Amount:** Level-specific costs (from your qualified levels)
-- **Requirement:** Must be qualified at that level
-- **Layers:** Earn from 26 layers deep in binary matrix
+### 2. Team Upgrade Income (85% - 13 Layers Deep)
+- **Earn:** From upgrades of users in your team matrix (up to 13 layers below)
+- **Amount:** 85% of upgrade costs distributed through qualified uplines
+- **Requirement:** Must be qualified at that level with 2+ direct referrals
+- **Layers:** Earn from 13 layers deep in binary matrix
 
 **Distribution:**
 ```
 Someone in your matrix upgrades to Level 5
 ↓
-You earn $160 (if you have Level 5) ✓
+85% of upgrade cost distributed to qualified uplines ✓
 ↓
-Passes through 26 layers above them
+Passes through 13 layers above them
 ```
 
 **Qualification:**
@@ -170,21 +213,22 @@ Passes through 26 layers above them
 - Must own the level being upgraded
 - Unqualified income goes to next qualified upline (or root)
 
-### 3. Sponsor Commission (5% of Referral Earnings)
-- **Earn:** 5% of your direct referral's matrix earnings
-- **Source:** Your referral's income, not their costs
+### 3. Sponsor Commission (5 Levels - Passive Income)
+- **Earn:** Commission from your network's earnings
+- **Levels:** Up to 5 levels deep in your sponsor tree
+- **Amount:** Share of platform fees from your referrals' activity
 - **Unlimited:** No cap on this income stream
-- **Passive:** Automatic as your team succeeds
+- **Passive:** Automatic as your team grows
 
 **Example:**
 ```
-Your referral User A earns $100 from their matrix
+Your referral User A earns income from their matrix
 ↓
-YOU earn 5% = $5 automatically ✓
+YOU earn sponsor commission automatically ✓
 
-Your 10 referrals each earn $1,000 total
+Your 10 referrals each build teams
 ↓
-YOU earn 5% × $10,000 = $500 ✓
+YOU earn from 5 levels of activity ✓
 ```
 
 ### 4. Daily Royalty Pools (Levels 10-12)
@@ -248,8 +292,8 @@ RideBNB features a **2x∞ binary matrix** - unlimited depth with binary structu
 - Helps build depth automatically
 - Fair distribution
 
-✅ **Income from 26 Layers**
-- Earn from 26 matrix layers below you
+✅ **Income from 13 Layers**
+- Earn from 13 matrix layers below you
 - Balanced between earnings and gas efficiency
 - Each layer can earn from upgrades
 
@@ -626,15 +670,14 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ```
 Total Registration Cost: $5
-├─ Direct Ref Income: $5 (100%) → Sponsor
-├─ Admin Fee: $0.50 (10%) → Fee Receiver
-└─ Royalty: $0.25 (5%) → Daily Pool
+├─ Direct Sponsor Income: $4.75 (95%) → Your Sponsor
+└─ Royalty Pool: $0.25 (5%) → Daily Distribution
 
 Total Upgrade Cost: varies by level
-├─ Level Income: varies → Matrix uplines (26 layers)
-├─ Sponsor Commission: 5% of earner's income → Direct sponsor
-├─ Admin Fee: 10% → Fee Receiver
-└─ Royalty: 5% → Daily Pool
+├─ Team Income: 85% → Matrix uplines (13 layers)
+├─ Sponsor Commission: 5% → Up to 5 sponsor levels
+├─ Admin Fee: 5% → Fee Receiver
+└─ Royalty Pool: 5% → Daily Distribution
 ```
 
 ### Contract Addresses
@@ -683,18 +726,18 @@ This project is provided as-is for demonstration and commercial purposes.
 
 ## 🎯 Summary
 
-RideBNB combines the best of decentralized matrix systems:
+Five Dollar Club (FDC) combines the best of decentralized income platforms:
 
-✅ **Limitless Growth** - Binary matrix with infinite depth
-✅ **Multiple Income Streams** - Direct, Matrix, Sponsor, Royalty
+✅ **Earn WITHOUT Recruiting** - Matrix spillover gives you passive income automatically
+✅ **$5 Entry** - Start your journey with just five dollars
+✅ **Up to 5 Layers Deep** - Benefit from people placed below you automatically
+✅ **Refer = Earn MORE** - Optional referrals multiply your income with 95% direct bonuses
+✅ **Team Growth Income** - Earn from 13-layer network upgrades
 ✅ **Fair Distribution** - Zero black holes, all income distributed
 ✅ **Daily Passive Income** - Royalty pools claimable every 24h
-✅ **Team Success Rewards** - 5% commission on referral earnings
-✅ **Proven Technology** - Secure, audited smart contracts
-✅ **Beautiful UI** - Modern Next.js frontend
 ✅ **BSC Network** - Fast, low-cost transactions
 
-**Start with $5. Build unlimited income potential. Join RideBNB today!** 🚀
+**Start with $5. Earn passively even without referring. Refer to earn MORE!** 🚀
 
 ---
 

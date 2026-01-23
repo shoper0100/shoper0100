@@ -278,6 +278,45 @@ export default function Home() {
         )}
       </div>
 
+      {/* 🔥 SPONSOR INCOME HIGHLIGHT BANNER */}
+      <div className="container mx-auto px-4 pb-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-2xl p-1 animate-pulse">
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 md:p-8">
+              <div className="text-center">
+                <p className="text-yellow-300 font-extrabold text-xl md:text-3xl mb-3">
+                  🤝 PASSIVE SPONSOR INCOME - THE GAME CHANGER!
+                </p>
+                <p className="text-white text-base md:text-xl mb-4">
+                  Earn from <span className="text-green-400 font-bold">EVERY upgrade</span> by <span className="text-green-400 font-bold">ANYONE</span> in your downline!
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  <div className="bg-green-600/30 rounded-lg p-3 border border-green-400">
+                    <p className="text-green-300 font-bold text-xl md:text-2xl">3.4%</p>
+                    <p className="text-gray-300 text-xs">L1-L5<br />No Directs!</p>
+                  </div>
+                  <div className="bg-yellow-600/30 rounded-lg p-3 border border-yellow-400">
+                    <p className="text-yellow-300 font-bold text-xl md:text-2xl">0.95%</p>
+                    <p className="text-gray-300 text-xs">L6-L8<br />2+ Directs</p>
+                  </div>
+                  <div className="bg-orange-600/30 rounded-lg p-3 border border-orange-400">
+                    <p className="text-orange-300 font-bold text-xl md:text-2xl">0.35%</p>
+                    <p className="text-gray-300 text-xs">L9-L10<br />3+ Directs</p>
+                  </div>
+                  <div className="bg-red-600/30 rounded-lg p-3 border border-red-400">
+                    <p className="text-red-300 font-bold text-xl md:text-2xl">0.30%</p>
+                    <p className="text-gray-300 text-xs">L11-L13<br />5+ Directs</p>
+                  </div>
+                </div>
+                <p className="text-lg md:text-2xl font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 inline-block px-6 py-3 rounded-xl">
+                  🎯 Build 5 Directs = Unlock ALL 13 Levels Forever!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Presentation Section */}
       <PresentationSection />
 

@@ -1,14 +1,14 @@
-// opBNB Testnet Contract Addresses - Updated Dec 26, 2025
-export const RIDEBNB_ADDRESS = '0x9d02E94bDBCa308321023D6f4C949a55Fe0004aF' as const;
-export const ROYALTY_ADDRESS = '0x37beB9241455EA436DEd9f9bDa7550237D507744' as const;
+// BSC Mainnet Contract Addresses - Updated for Five Dollar Club (FDC)
+export const RIDEBNB_ADDRESS = '0xd4894bfF2096Ad0bB4D2815d57b5C21E2E16db44' as const;
+export const ROYALTY_ADDRESS = '0xce7377de450AEea517704fD98d0B2a2F2e5a6b63' as const;
 
-// Network Configuration
-export const CHAIN_ID = 5611; // opBNB Testnet
-export const RPC_URL = 'https://opbnb-testnet-rpc.bnbchain.org';
-export const EXPLORER_URL = 'https://opbnb-testnet.bscscan.com';
+// Network Configuration - BSC Mainnet
+export const CHAIN_ID = 56; // BSC Mainnet
+export const RPC_URL = 'https://bsc-dataseed1.binance.org';
+export const EXPLORER_URL = 'https://bscscan.com';
 
 // Contract constants
-export const ROOT_USER_ID = 73928;
+export const ROOT_USER_ID = 36999;
 export const MAX_LEVELS = 13;
 export const ROYALTY_TIERS = 4;
 export const ROYALTY_LEVELS = [10, 11, 12, 13];
@@ -39,7 +39,7 @@ export const LEVEL_FEES = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 // Network configuration for wallet
 export const NETWORK_CONFIG = {
     chainId: `0x${CHAIN_ID.toString(16)}`,
-    chainName: 'opBNB Testnet',
+    chainName: 'BSC Mainnet',
     nativeCurrency: {
         name: 'BNB',
         symbol: 'BNB',

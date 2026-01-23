@@ -23,7 +23,7 @@ export function useUserData(userAddress?: string) {
 
             // Check if on correct network
             if (!isCorrectNetwork) {
-                setError('Please switch to opBNB network');
+                setError('Please switch to BSC Mainnet network');
                 setLoading(false);
                 return;
             }
@@ -59,25 +59,32 @@ export function useUserData(userAddress?: string) {
                 ]);
 
                 const userData: User = {
-                    id: id, // Use 'id' here
-                    account: String(userInfo[0] || ''),
-                    referrer: userInfo[2] || BigInt(0), // Adjusted index
-                    upline: userInfo[3] || BigInt(0), // Adjusted index
-                    start: userInfo[4] || BigInt(0), // Adjusted index
-                    level: userInfo[5] || BigInt(0), // Adjusted index
-                    directTeam: userInfo[6] || BigInt(0), // Adjusted index
-                    totalMatrixTeam: userInfo[7] || BigInt(0), // Adjusted index
-                    exists: userInfo[8],
+                    id: id,
+                    exists: userInfo[0],           // bool exists
+                    account: String(userInfo[1]),  // address account
+                    referrer: userInfo[2],         // uint referrer
+                    upline: userInfo[3],           // uint upline
+                    level: userInfo[4],            // uint level
+                    directTeam: userInfo[5],       // uint directTeam
+                    totalMatrixTeam: userInfo[6],  // uint team
+                    start: userInfo[7],            // uint registrationTime
+                    // Income fields filled from userIncome call below
+                    totalIncome: BigInt(0),
+                    totalDeposit: BigInt(0),
+                    royaltyIncome: BigInt(0),
+                    referralIncome: BigInt(0),
+                    levelIncome: BigInt(0),
+                    sponsorIncome: BigInt(0),
                 };
 
-                // Process income data
+                // Process income data (if available)
                 const incomeData = incomeFromContract ? {
-                    totalIncome: incomeFromContract[0] || BigInt(0),
-                    totalDeposit: incomeFromContract[1] || BigInt(0),
-                    royaltyIncome: incomeFromContract[2] || BigInt(0),
-                    referralIncome: incomeFromContract[3] || BigInt(0),
-                    levelIncome: incomeFromContract[4] || BigInt(0),
-                    sponsorIncome: incomeFromContract[5] || BigInt(0),
+                    totalDeposit: incomeFromContract[0] || BigInt(0),     // uint totalDeposit
+                    totalIncome: incomeFromContract[1] || BigInt(0),      // uint totalIncome
+                    referralIncome: incomeFromContract[2] || BigInt(0),   // uint referralIncome
+                    sponsorIncome: incomeFromContract[3] || BigInt(0),    // uint sponsorIncome
+                    levelIncome: incomeFromContract[4] || BigInt(0),      // uint levelIncome
+                    royaltyIncome: BigInt(0),  // Not in contract struct
                 } : {
                     totalIncome: BigInt(0),
                     totalDeposit: BigInt(0),
@@ -97,7 +104,7 @@ export function useUserData(userAddress?: string) {
 
                 // Provide more helpful error messages
                 if (errorMessage.includes('could not decode result data')) {
-                    setError('Unable to connect to contract. Please ensure you are on opBNB network.');
+                    setError('Unable to connect to contract. Please ensure you are on BSC Mainnet network.');
                 } else if (errorMessage.includes('network')) {
                     setError('Network error. Please check your connection and try again.');
                 } else {
@@ -128,25 +135,32 @@ export function useUserData(userAddress?: string) {
             const userInfo = await contract.userInfo(id);
 
             const userData: User = {
-                account: userInfo[0],
-                id: userInfo[1],
+                id: id,
+                exists: userInfo[0],
+                account: String(userInfo[1]),
                 referrer: userInfo[2],
                 upline: userInfo[3],
-                start: userInfo[4],
-                level: userInfo[5],
-                directTeam: userInfo[6],
-                totalMatrixTeam: userInfo[7],
-                exists: userInfo[8],
+                level: userInfo[4],
+                directTeam: userInfo[5],
+                totalMatrixTeam: userInfo[6],
+                start: userInfo[7],
+                // Income fields
+                totalIncome: BigInt(0),
+                totalDeposit: BigInt(0),
+                royaltyIncome: BigInt(0),
+                referralIncome: BigInt(0),
+                levelIncome: BigInt(0),
+                sponsorIncome: BigInt(0),
             };
 
             const incomeData = await contract.userIncome(id);
             const userIncomeData: UserIncome = {
-                totalIncome: incomeData[0],
-                totalDeposit: incomeData[1],
-                royaltyIncome: incomeData[2],
-                referralIncome: incomeData[3],
-                levelIncome: incomeData[4],
-                sponsorIncome: incomeData[5],
+                totalDeposit: incomeData[0],     // uint totalDeposit
+                totalIncome: incomeData[1],      // uint totalIncome
+                referralIncome: incomeData[2],   // uint referralIncome
+                sponsorIncome: incomeData[3],    // uint sponsorIncome
+                levelIncome: incomeData[4],      // uint levelIncome
+                royaltyIncome: BigInt(0),        // Not in contract struct
             };
 
             setUser(userData);

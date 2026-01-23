@@ -123,14 +123,21 @@ export default function AdminPage() {
 
             // Fetch Chainlink oracle settings
             try {
-                const autoUpdate = await contract.autoUpdateEnabled();
-                const oracle = await contract.priceOracle();
+                try {
+                    const autoUpdate = await contract.autoUpdateEnabled();
+                    const oracle = await contract.priceOracle();
 
-                setAutoUpdateEnabled(autoUpdate);
-                setPriceOracle(oracle);
+                    setAutoUpdateEnabled(autoUpdate);
+                    setPriceOracle(oracle);
+                } catch (oracleErr) {
+                    // Oracle functions not available in deployed contract
+                    console.log('Oracle functions not available');
+                    setAutoUpdateEnabled(false);
+                    setPriceOracle('0x0000000000000000000000000000000000000000');
+                }
             } catch (err) {
                 console.error('Error fetching oracle settings:', err);
-                setAutoUpdateEnabled(true);
+                setAutoUpdateEnabled(false);
                 setPriceOracle('0x0000000000000000000000000000000000000000');
             }
 

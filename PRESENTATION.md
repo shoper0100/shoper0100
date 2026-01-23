@@ -1,5 +1,5 @@
-# FiveDollarBNB Presentation
-## Decentralized Matrix Platform on BSC Mainnet
+# Five Dollar Club (FDC) Presentation
+## Decentralized Income Platform on BSC Mainnet
 ### fivedollar.bnb
 
 ---
@@ -114,7 +114,7 @@
 
 ---
 
-## 🎯 Why Join FiveDollarBNB?
+## 🎯 Why Join Five Dollar Club?
 
 ![Why Join](presentations/7-why-join-fivedollarride.png)
 
@@ -325,7 +325,7 @@ Building the most accessible decentralized matrix platform on BSC with cutting-e
 
 ## 📞 Additional Information
 
-**Platform:** FiveDollarBNB  
+**Platform:** Five Dollar Club (FDC)  
 **Network:** BSC Mainnet  
 **Technology:** Solidity 0.8.28, OpenZeppelin v5, Chainlink  
 **Levels:** 13 ($5 to $10,240)  
@@ -338,7 +338,7 @@ Building the most accessible decentralized matrix platform on BSC with cutting-e
 
 ---
 
-**Thank you for your interest in FiveDollarBNB!**
+**Thank you for your interest in Five Dollar Club!**
 
 *Decentralized • Transparent • Accessible*  
 **fivedollar.bnb | BSC Mainnet**

@@ -53,7 +53,7 @@ export default function WalletConnect() {
                         onClick={switchNetwork}
                         className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors text-sm"
                     >
-                        Switch to opBNB
+                        Switch to BSC Mainnet
                     </button>
                 )}
 
@@ -116,7 +116,7 @@ export default function WalletConnect() {
                                     <div className="text-xs text-gray-400 mb-1">Network</div>
                                     <div className="bg-gray-900 rounded px-3 py-2">
                                         <span className="text-white text-sm">
-                                            {isCorrectNetwork ? 'opBNB Testnet' : 'Wrong Network'}
+                                            {isCorrectNetwork ? 'BSC Mainnet' : 'Wrong Network'}
                                         </span>
                                     </div>
                                 </div>
@@ -160,7 +160,7 @@ export default function WalletConnect() {
                                             }}
                                             className="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors text-sm font-medium"
                                         >
-                                            Switch to opBNB Testnet
+                                            Switch to BSC Mainnet
                                         </button>
                                     )}
 

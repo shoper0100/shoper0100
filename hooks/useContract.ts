@@ -159,7 +159,7 @@ export function useContract() {
         }
     };
 
-    // Switch to opBNB network
+    // Switch to BSC Mainnet network
     const switchNetwork = async () => {
         try {
             if (!window.ethereum) {
@@ -179,14 +179,14 @@ export function useContract() {
                         params: [
                             {
                                 chainId: `0x${CHAIN_ID.toString(16)}`,
-                                chainName: 'opBNB Testnet',
+                                chainName: 'BSC Mainnet',
                                 nativeCurrency: {
                                     name: 'BNB',
                                     symbol: 'BNB',
                                     decimals: 18,
                                 },
-                                rpcUrls: ['https://opbnb-testnet-rpc.bnbchain.org'],
-                                blockExplorerUrls: ['https://opbnb-testnet.bscscan.com'],
+                                rpcUrls: ['https://bsc-dataseed1.binance.org'],
+                                blockExplorerUrls: ['https://bscscan.com'],
                             },
                         ],
                     });

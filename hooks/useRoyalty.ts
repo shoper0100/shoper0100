@@ -22,29 +22,19 @@ export function useRoyalty(userId?: bigint, userLevel?: bigint) {
                 setLoading(true);
                 setError(null);
 
+                // Fetch royalty data from deployed contract
                 const currentDay = await contract.getCurRoyaltyDay();
                 const tierInfos: RoyaltyInfo[] = [];
 
                 for (let tier = 0; tier < ROYALTY_LEVELS.length; tier++) {
                     const level = ROYALTY_LEVELS[tier];
-
-                    // Check if user is eligible for this tier
                     const isEligible = Number(userLevel) === level;
 
                     if (isEligible) {
-                        // Get royalty pool for this tier
                         const poolAmount = await contract.royalty(currentDay, tier);
-
-                        // Get number of eligible users
                         const eligibleUsers = await contract.royaltyUsers(tier);
-
-                        // Check if user is active in this tier
                         const isActive = await contract.royaltyActive(userId, tier);
-
-                        // Check if user has claimed
                         const hasClaimed = await contract.royaltyTaken(currentDay, userId);
-
-                        // Calculate user's share
                         const userShare = eligibleUsers > BigInt(0)
                             ? poolAmount / eligibleUsers
                             : BigInt(0);
@@ -66,6 +56,7 @@ export function useRoyalty(userId?: bigint, userLevel?: bigint) {
             } catch (err) {
                 console.error('Error fetching royalty:', err);
                 setError(err instanceof Error ? err.message : 'Failed to fetch royalty');
+                setRoyaltyTiers([]);
             } finally {
                 setLoading(false);
             }
@@ -113,6 +104,7 @@ export function useRoyalty(userId?: bigint, userLevel?: bigint) {
         } catch (err) {
             console.error('Error refreshing royalty:', err);
             setError(err instanceof Error ? err.message : 'Failed to refresh royalty');
+            setRoyaltyTiers([]);
         }
     };
 

@@ -11,73 +11,81 @@ export function useIncome(userId?: bigint) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Mock data for testing/visualization
-        if (userId) {
-            const mockData: Income[] = [
-                {
-                    id: BigInt(73929),
-                    layer: BigInt(1),
-                    amount: BigInt('50000000000000000'), // 0.05 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 3600),
-                    isLost: false,
-                    transactionHash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-                },
-                {
-                    id: BigInt(73930),
-                    layer: BigInt(2),
-                    amount: BigInt('30000000000000000'), // 0.03 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 7200),
-                    isLost: false,
-                    transactionHash: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-                },
-                {
-                    id: BigInt(73931),
-                    layer: BigInt(1),
-                    amount: BigInt('45000000000000000'), // 0.045 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 14400),
-                    isLost: false,
-                    transactionHash: '0x567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234',
-                },
-                {
-                    id: BigInt(73932),
-                    layer: BigInt(3),
-                    amount: BigInt('25000000000000000'), // 0.025 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 21600),
-                    isLost: false,
-                    transactionHash: '0x90abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678',
-                },
-                {
-                    id: BigInt(73933),
-                    layer: BigInt(2),
-                    amount: BigInt('35000000000000000'), // 0.035 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 28800),
-                    isLost: false,
-                    transactionHash: '0xdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc',
-                },
-                {
-                    id: BigInt(73934),
-                    layer: BigInt(4),
-                    amount: BigInt('15000000000000000'), // 0.015 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 43200),
-                    isLost: true,
-                    transactionHash: '0x234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1',
-                },
-                {
-                    id: BigInt(73935),
-                    layer: BigInt(1),
-                    amount: BigInt('55000000000000000'), // 0.055 BNB
-                    time: BigInt(Math.floor(Date.now() / 1000) - 86400),
-                    isLost: false,
-                    transactionHash: '0x7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123456',
-                },
-            ];
-            setIncome(mockData);
+        const fetchIncome = async () => {
+            if (!contract || !userId) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError(null);
+
+                try {
+                    // Try to fetch last 100 income transactions from contract
+                    const incomeData = await contract.getIncome(userId, 100);
+
+                    // Map to Income type
+                    const transactions: Income[] = incomeData.map((item: any) => ({
+                        id: item.id,
+                        layer: item.layer,
+                        amount: item.amount,
+                        time: item.time,
+                        isLost: item.isLost,
+                        transactionHash: '',
+                    }));
+
+                    setIncome(transactions);
+                } catch (contractErr) {
+                    // Function doesn't exist or reverted - use empty array
+                    // In production, you would fetch from event logs here
+                    console.log('getIncome not available, would fetch from events');
+                    setIncome([]);
+                }
+            } catch (err) {
+                console.error('Error fetching income:', err);
+                setError(err instanceof Error ? err.message : 'Failed to fetch income');
+                setIncome([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchIncome();
+    }, [contract, userId]);
+
+    const refresh = async () => {
+        if (!contract || !userId) return;
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const incomeData = await contract.getIncome(userId, 100);
+                const transactions: Income[] = incomeData.map((item: any) => ({
+                    id: item.id,
+                    layer: item.layer,
+                    amount: item.amount,
+                    time: item.time,
+                    isLost: item.isLost,
+                    transactionHash: '',
+                }));
+
+                setIncome(transactions);
+            } catch (contractErr) {
+                console.log('getIncome not available');
+                setIncome([]);
+            }
+        } catch (err) {
+            console.error('Error refreshing income:', err);
+            setError(err instanceof Error ? err.message : 'Failed to refresh income');
+        } finally {
+            setLoading(false);
         }
-    }, [userId]);
+    };
 
-    // Note: Using mock data for testing. Contract doesn't have events or getter functions
-    // Remove this mock data when real contract functions are available
-
+    // Filter income by type
     const referralIncome = income.filter(i => Number(i.layer) === 1 && !i.isLost);
     const levelIncome = income.filter(i => Number(i.layer) > 1 && !i.isLost);
     const lostIncome = income.filter(i => i.isLost);
@@ -89,6 +97,6 @@ export function useIncome(userId?: bigint) {
         lostIncome,
         loading,
         error,
-        refresh: async () => { },
+        refresh,
     };
 }

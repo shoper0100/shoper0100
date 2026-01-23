@@ -25,12 +25,12 @@ export default function DashboardPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <h2 className="text-2xl font-bold text-white mb-4">Wrong Network</h2>
-                <p className="text-gray-400 mb-8">Please switch to opBNB network to continue</p>
+                <p className="text-gray-400 mb-8">Please switch to BSC Mainnet network to continue</p>
                 <button
                     onClick={switchNetwork}
                     className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                 >
-                    Switch to opBNB
+                    Switch to BSC Mainnet
                 </button>
             </div>
         );
@@ -49,7 +49,7 @@ export default function DashboardPage() {
             <div className="flex flex-col items-center justify-center min-h-[60vh]">
                 <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Data</h2>
                 <p className="text-gray-400 mb-4">{error}</p>
-                <p className="text-gray-500 text-sm">Make sure you're connected to opBNB network</p>
+                <p className="text-gray-500 text-sm">Make sure you're connected to BSC Mainnet network</p>
             </div>
         );
     }
