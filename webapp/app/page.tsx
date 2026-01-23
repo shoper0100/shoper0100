@@ -420,6 +420,137 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Sponsor Income Tier Breakdown */}
+      <div className="container mx-auto px-4 py-16 mb-8">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-yellow-300 text-center mb-4 drop-shadow-lg" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.6)' }}>
+          💰 Sponsor Income: 13-Level Breakdown
+        </h2>
+        <p className="text-xl text-center text-blue-200 mb-12">Total: 5% of every transaction distributed across 13 levels</p>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Tier 1: L1-L5 */}
+          <div className="bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl p-6 border-2 border-green-400">
+            <div className="text-4xl mb-3 text-center">🟢</div>
+            <h3 className="text-2xl font-bold text-white mb-2 text-center">Tier 1: L1-L5</h3>
+            <div className="bg-black/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-300 font-bold text-3xl text-center">3.4%</p>
+              <p className="text-gray-200 text-sm text-center mt-1">Combined Total</p>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Level 1:</span><span className="font-bold text-yellow-300">1.00%</span></div>
+              <div className="flex justify-between"><span>Level 2:</span><span className="font-bold text-yellow-300">0.80%</span></div>
+              <div className="flex justify-between"><span>Level 3:</span><span className="font-bold text-yellow-300">0.60%</span></div>
+              <div className="flex justify-between"><span>Level 4:</span><span className="font-bold text-yellow-300">0.50%</span></div>
+              <div className="flex justify-between"><span>Level 5:</span><span className="font-bold text-yellow-300">0.50%</span></div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="text-green-300 font-bold text-center">✅ NO DIRECTS NEEDED</p>
+              <p className="text-gray-200 text-xs text-center mt-1">Just be active (Level 1+)</p>
+            </div>
+          </div>
+
+          {/* Tier 2: L6-L8 */}
+          <div className="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl p-6 border-2 border-yellow-400">
+            <div className="text-4xl mb-3 text-center">🟡</div>
+            <h3 className="text-2xl font-bold text-white mb-2 text-center">Tier 2: L6-L8</h3>
+            <div className="bg-black/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-300 font-bold text-3xl text-center">0.95%</p>
+              <p className="text-gray-200 text-sm text-center mt-1">Combined Total</p>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Level 6:</span><span className="font-bold text-yellow-300">0.40%</span></div>
+              <div className="flex justify-between"><span>Level 7:</span><span className="font-bold text-yellow-300">0.30%</span></div>
+              <div className="flex justify-between"><span>Level 8:</span><span className="font-bold text-yellow-300">0.25%</span></div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="text-yellow-300 font-bold text-center">👥 2+ DIRECTS</p>
+              <p className="text-gray-200 text-xs text-center mt-1">Rewards team builders</p>
+            </div>
+          </div>
+
+          {/* Tier 3: L9-L10 */}
+          <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-xl p-6 border-2 border-orange-400">
+            <div className="text-4xl mb-3 text-center">🟠</div>
+            <h3 className="text-2xl font-bold text-white mb-2 text-center">Tier 3: L9-L10</h3>
+            <div className="bg-black/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-300 font-bold text-3xl text-center">0.35%</p>
+              <p className="text-gray-200 text-sm text-center mt-1">Combined Total</p>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Level 9:</span><span className="font-bold text-yellow-300">0.20%</span></div>
+              <div className="flex justify-between"><span>Level 10:</span><span className="font-bold text-yellow-300">0.15%</span></div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="text-orange-300 font-bold text-center">👥👥 3+ DIRECTS</p>
+              <p className="text-gray-200 text-xs text-center mt-1">For serious builders</p>
+            </div>
+          </div>
+
+          {/* Tier 4: L11-L13 */}
+          <div className="bg-gradient-to-br from-red-600 to-pink-600 rounded-xl p-6 border-2 border-red-400">
+            <div className="text-4xl mb-3 text-center">🔴</div>
+            <h3 className="text-2xl font-bold text-white mb-2 text-center">Tier 4: L11-L13</h3>
+            <div className="bg-black/30 rounded-lg p-4 mb-4">
+              <p className="text-yellow-300 font-bold text-3xl text-center">0.30%</p>
+              <p className="text-gray-200 text-sm text-center mt-1">Combined Total</p>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span>Level 11:</span><span className="font-bold text-yellow-300">0.10%</span></div>
+              <div className="flex justify-between"><span>Level 12:</span><span className="font-bold text-yellow-300">0.10%</span></div>
+              <div className="flex justify-between"><span>Level 13:</span><span className="font-bold text-yellow-300">0.10%</span></div>
+            </div>
+            <div className="mt-4 pt-4 border-t border-white/20">
+              <p className="text-red-300 font-bold text-center">👥👥👥 5+ DIRECTS</p>
+              <p className="text-gray-200 text-xs text-center mt-1">Top-tier leaders</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Real Example */}
+        <div className="mt-12 bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-2 border-purple-400/50 rounded-2xl p-8">
+          <h3 className="text-3xl font-bold text-white text-center mb-6">📊 Real Example</h3>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-black/30 rounded-xl p-6">
+              <h4 className="text-xl font-bold text-yellow-300 mb-4">Scenario:</h4>
+              <p className="text-gray-200 mb-4">
+                • Alice (5 directs) → Bob (1 direct) → Charlie<br />
+                • Charlie upgrades to Level 5 ($40)
+              </p>
+              <h4 className="text-xl font-bold text-green-300 mb-3">Bob Earns (L1-L5):</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span>L1: 1.00% of $40</span><span className="font-bold">= $0.40</span></div>
+                <div className="flex justify-between"><span>L2: 0.80% of $40</span><span className="font-bold">= $0.32</span></div>
+                <div className="flex justify-between"><span>L3: 0.60% of $40</span><span className="font-bold">= $0.24</span></div>
+                <div className="flex justify-between"><span>L4: 0.50% of $40</span><span className="font-bold">= $0.20</span></div>
+                <div className="flex justify-between"><span>L5: 0.50% of $40</span><span className="font-bold">= $0.20</span></div>
+                <div className="flex justify-between border-t border-white/20 pt-2 mt-2 text-yellow-300 font-bold">
+                  <span>Bob's Total:</span><span>$1.36</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-black/30 rounded-xl p-6">
+              <h4 className="text-xl font-bold text-orange-300 mb-3">Alice Earns (L6-L10):</h4>
+              <div className="space-y-1 text-sm mb-4">
+                <div className="flex justify-between"><span>L6: 0.40% of $40</span><span className="font-bold">= $0.16</span></div>
+                <div className="flex justify-between"><span>L7: 0.30% of $40</span><span className="font-bold">= $0.12</span></div>
+                <div className="flex justify-between"><span>L8: 0.25% of $40</span><span className="font-bold">= $0.10</span></div>
+                <div className="flex justify-between"><span>L9: 0.20% of $40</span><span className="font-bold">= $0.08</span></div>
+                <div className="flex justify-between"><span>L10: 0.15% of $40</span><span className="font-bold">= $0.06</span></div>
+                <div className="flex justify-between border-t border-white/20 pt-2 mt-2 text-yellow-300 font-bold">
+                  <span>Alice's Total:</span><span>$0.52</span>
+                </div>
+              </div>
+              <p className="text-green-300 text-xs">✅ Alice qualifies! Has 5 directs</p>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-white text-lg font-bold bg-purple-600/50 inline-block px-6 py-3 rounded-xl">
+              🎯 Build 5 Directs = Unlock ALL 13 Levels!
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* How It Works */}
       <div className="container mx-auto px-4 py-16">
         <h2 className="text-4xl md:text-5xl font-extrabold text-yellow-300 text-center mb-12 drop-shadow-lg" style={{ textShadow: '3px 3px 6px rgba(0,0,0,0.6)' }}>
