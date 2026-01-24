@@ -7,8 +7,8 @@ const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '85bbe92e9
 // 2. Create wagmiConfig
 const metadata = {
     name: 'GREAT INVESTOR CLUB',
-    description: 'Five Dollar BNB - Decentralized Matrix Platform',
-    url: 'https://fivedollarbnb.vercel.app', // origin must match your domain & subdomain
+    description: 'GREAT INVESTOR CLUB - Decentralized Matrix Platform',
+    url: 'https://gic-club.vercel.app', // origin must match your domain & subdomain
     icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
