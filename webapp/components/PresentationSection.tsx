@@ -95,7 +95,7 @@ export default function PresentationSection() {
     return (
         <div className="container mx-auto px-4 py-16">
             <h2 className="text-4xl md:text-5xl font-extrabold text-white text-center mb-12 drop-shadow-lg">
-                Why <span className="text-yellow-300">FiveDollarCLUB?</span>
+                Why <span className="text-yellow-300">GREAT INVESTOR CLUB?</span>
             </h2>
 
             <div className="relative h-[600px] w-full max-w-5xl mx-auto perspective-1000">

@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "FiveDollarBNB - Blockchain Income Platform",
-  description: "Earn passive income with 4 automated streams on BSC",
+  title: "GREAT INVESTOR CLUB - GIC CLUB",
+  description: "Join GREAT INVESTOR CLUB (GIC CLUB) and earn passive income through 4 powerful streams on BSC Mainnet",
 };
 
 export default function RootLayout({

@@ -409,7 +409,7 @@ export default function Dashboard() {
     const getAffiliateLinkById = () => `${typeof window !== 'undefined' ? window.location.origin : 'https://fivedollar.bnb'}?refid=${userId}`;
 
     const shareOnSocial = (platform: string) => {
-        const text = `🚀 Join me on FiveDollarCLUB! Earn passive income with 4 streams. Start with $5!`;
+        const text = `🚀 Join me on GREAT INVESTOR CLUB! Earn passive income with 4 streams. Start with $5!`;
         const url = getAffiliateLinkById();
         const urls = {
             twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
@@ -473,7 +473,7 @@ export default function Dashboard() {
 
             await tx.wait();
 
-            alert('✅ Registration successful! Welcome to FiveDollarCLUB!');
+            alert('✅ Registration successful! Welcome to GREAT INVESTOR CLUB!');
             loadUserData(userAddress);
         } catch (error: any) {
             console.error('Registration failed:', error);
@@ -1097,7 +1097,7 @@ export default function Dashboard() {
                         ) : (
                             <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-8 text-center border-2 border-yellow-400/50 shadow-2xl">
                                 <div className="text-6xl mb-4">🚀</div>
-                                <p className="text-white text-2xl font-bold mb-2">Welcome to FiveDollarCLUB!</p>
+                                <p className="text-white text-2xl font-bold mb-2">Welcome to GREAT INVESTOR CLUB!</p>
                                 <p className="text-white/90 text-lg mb-6">Start your journey to passive income</p>
                                 <button
                                     onClick={() => handleRegister()}
